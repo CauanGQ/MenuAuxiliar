@@ -1,0 +1,182 @@
+/* Estilo geral */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #121212; /* Fundo escuro */
+    color: #e0e0e0; /* Texto claro */
+  }
+  
+  h1, h2 {
+    text-align: center;
+    color: #00bcd4; /* Azul claro */
+    text-shadow: 0 0 10px #00bcd4, 0 0 20px #00bcd4;
+  }
+  
+  a {
+    color: #00e676; /* Verde neon */
+    text-decoration: none;
+  }
+  
+  /* Esconder o input original */
+  input[type="file"] {
+    display: none;
+  }
+  
+  /* Estilo para o botão personalizado */
+  .custom-file-upload {
+    padding: 10px 20px;
+    border-radius: 5px;
+    background-color: #00bcd4;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: 0 0 10px #00bcd4, 0 0 20px #00bcd4;
+    transition: background-color 0.3s, box-shadow 0.3s;
+  }
+  
+  .custom-file-upload:hover {
+    background-color: #0097a7; /* Cor mais escura no hover */
+    box-shadow: 0 0 15px #00bcd4, 0 0 30px #00bcd4;
+  }
+  
+  a:hover {
+    text-shadow: 0 0 8px #00e676;
+  }
+  
+  /* Estilo do popup */
+  .popup {
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 320px;
+    padding: 20px;
+    background-color: #1e1e1e; /* Fundo escuro */
+    border: 2px solid #00bcd4; /* Borda azul */
+    box-shadow: 0 0 20px #00bcd4; /* Sombra azul neon */
+    z-index: 1000;
+    color: #e0e0e0; /* Texto claro */
+  }
+  
+  /* Fundo escuro ao redor */
+  .popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Fundo escuro com opacidade */
+    z-index: 999;
+  }
+  
+  /* Estilo da lista */
+  ul {
+    list-style-type: none;
+    padding: 0px;
+  }
+  
+  ul li {
+    padding: 10px;
+    background-color: #232323; /* Fundo escuro da lista */
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #444444;
+    color: #00e676; /* Texto em verde neon */
+  }
+  
+  ul li span {
+    flex-grow: 1;
+    color: #e0e0e0;
+  }
+  
+  ul li strong.valorTotal {
+   position: relative;
+   right: 15px;
+  }
+  /* Estilo dos botões */
+  button {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #1e1e1e; /* Fundo escuro do botão */
+    color: #00bcd4; /* Azul neon */
+    box-shadow: 0 0 10px #00bcd4, 0 0 20px #00bcd4;
+    transition: background-color 0.3s, box-shadow 0.3s;
+  }
+  
+  button:hover {
+    background-color: #00bcd4; /* Muda o fundo para azul neon no hover */
+    color: #1e1e1e;
+    box-shadow: 0 0 15px #00bcd4, 0 0 30px #00bcd4;
+  }
+  
+  /* Estilo para os botões de editar e excluir */
+  button.editar {
+    background-color: #00bcd4;
+    color: #ffffff;
+    box-shadow: 0 0 10px #00bcd4, 0 0 20px #00bcd4;
+  }
+  
+  button.editar:hover {
+    background-color: #0097a7; /* Tom mais escuro de azul no hover */
+    box-shadow: 0 0 15px #00bcd4, 0 0 30px #00bcd4;
+  }
+  
+  button.excluir {
+    background-color: #ff1744; /* Vermelho para destacar exclusão */
+    color: #ffffff;
+    box-shadow: 0 0 10px #ff1744, 0 0 20px #ff1744;
+  }
+  
+  button.excluir:hover {
+    background-color: #d50000; /* Tom mais escuro de vermelho no hover */
+    box-shadow: 0 0 15px #ff1744, 0 0 30px #ff1744;
+  }
+  
+  /* Estilo do campo de input */
+  input, select {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 2px solid #444444;
+    border-radius: 5px;
+    background-color: #2a2a2a; /* Fundo escuro dos inputs */
+    color: #e0e0e0;
+  }
+  
+  input:focus, select:focus {
+    outline: none;
+    border-color: #00bcd4; /* Azul neon no foco */
+    box-shadow: 0 0 10px #00bcd4, 0 0 20px #00bcd4;
+  }
+  
+  /* Estilo do botão de adicionar item no popup */
+  #adicionar-item {
+    background-color: #00e676;
+    color: #1e1e1e;
+    box-shadow: 0 0 15px #00e676, 0 0 30px #00e676;
+  }
+  
+  #adicionar-item:hover {
+    background-color: #1e1e1e;
+    color: #00e676;
+  }
+  
+  /* Estilos para centralizar os botões e label */
+  .container-botoes {
+    display: flex;
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center; /* Alinha verticalmente */
+    gap: 20px; /* Espaçamento entre os botões */
+    margin-top: 20px; /* Espaçamento superior */
+  }
+  
+  button, .custom-file-upload {
+    margin: 10px;
+  }
+  

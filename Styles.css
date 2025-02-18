@@ -1,0 +1,114 @@
+/* Estilos gerais */
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+}
+
+.theme-toggle {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f4f4f9;
+    padding: 10px;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.theme-toggle .light-icon {
+    display: none;
+}
+
+.theme-toggle .dark-icon {
+    display: none;
+}
+
+body.light .theme-toggle .light-icon {
+    display: block;
+}
+
+body.dark .theme-toggle .dark-icon {
+    display: block;
+}
+
+.container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.menu-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-list li {
+    margin-bottom: 15px;
+}
+
+.menu-list a {
+    display: block;
+    text-decoration: none;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    border-radius: 4px;
+    font-size: 18px;
+    transition: background-color 0.3s ease;
+}
+
+.menu-list a:hover {
+    background-color: #3c9241;
+}
+
+/* Tema Claro */
+body.light {
+    background-color: #f4f4f9;
+}
+
+body.light .container {
+    background-color: white;
+}
+
+body.light h1, body.light a {
+    color: #333;
+}
+
+/* Tema Escuro */
+body.dark {
+    background-color: #333;
+    color: white;
+}
+
+body.dark .container {
+    background-color: #444;
+}
+
+body.dark a {
+    background-color: #555;
+    color: white;
+}
+
+body.dark a:hover {
+    background-color: #757474;
+}

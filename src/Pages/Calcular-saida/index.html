@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Horário de Saída</title>
+    <link rel="stylesheet" href="styles.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1725283356900247"
+     crossorigin="anonymous"></script>
+</head>
+<body class="light">
+
+<!-- Botão de alternância de tema -->
+<div class="theme-toggle" id="theme-toggle">
+    <span class="light-icon">☀️</span>
+    <span class="dark-icon">🌙</span>
+</div>
+
+<div class="container">
+    <h1>Calculadora de Horário de Saída</h1>
+
+    <div class="input-group">
+        <button type="button" id="openPopup">Calcular Horas de Intervalo</button>
+    </div>
+
+    <form id="calcForm">
+        <div class="input-group">
+            <label for="horaEntrada">Hora de Entrada (HH:MM)</label>
+            <input type="time" id="horaEntrada" required>
+        </div>
+
+        <div class="input-group">
+            <label for="intervalo">Intervalo Feito (H:MM)</label>
+            <input type="time" id="intervalo" step="60" required>
+        </div>
+
+        <div class="input-group">
+            <label for="horasExtras">Horas Extras (Opcional, H:MM)</label>
+            <input type="time" id="horasExtras" step="60">
+        </div>
+
+        <div class="input-group">
+            <button type="submit">Calcular Horário de Saída</button>
+        </div>
+    </form>
+
+    <div class="note">
+        Pontos de atenção:<br>
+        * O intervalo mínimo é de 1h10min e o máximo permitido é de 1h59min.<br>
+        ** O intervalo de acordo é 1h30min.<br>
+        *** Caso o intervalo ultrapasse 2h, você poderá receber um esporro do RH.<br>
+        **** Limite de horas extras diárias é de 1h40min.<br>
+    </div>
+
+    <div class="result" id="result"></div>
+
+    <div class="copyright">
+        &copy; 2025 @CauanGQ. Todos os direitos reservados.
+    </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="popup" id="popup">
+    <h2>Calcular Horas de Intervalo</h2>
+    <label for="saidaIntervalo">Horário de Saída para Intervalo (HH:MM)</label>
+    <input type="time" id="saidaIntervalo" required>
+
+    <label for="voltaIntervalo">Horário de Volta do Intervalo (HH:MM)</label>
+    <input type="time" id="voltaIntervalo" required>
+
+    <div class="btn-group">
+        <button id="calcularIntervalo">Calcular Intervalo</button>
+        <button id="closePopup">Fechar</button>
+    </div>
+
+    <div id="intervaloResult"></div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
