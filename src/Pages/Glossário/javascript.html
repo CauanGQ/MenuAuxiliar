@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aprenda JavaScript - Glossário Completo</title>
+  <link rel="icon" type="image/png" href="Menu-Icon.webp" sizes="32x32">
+  <link rel="stylesheet" href="styles.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1725283356900247"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+    <style>
+        /* Estrutura Básica de um Arquivo CSS */
+/* Este é um comentário em CSS */
+
+/* Seletor de Elementos */
+h1 {
+  color: blue;  /* Altera a cor do texto do h1 para azul */
+}
+
+p {
+  font-size: 16px;  /* Define o tamanho da fonte dos parágrafos */
+}
+
+/* Classes e IDs */
+.introducao {
+  font-weight: bold;  /* Deixa o texto em negrito */
+}
+
+#titulo-principal {
+  text-align: center;  /* Centraliza o texto */
+}
+
+/* Propriedades de Layout */
+.container {
+  display: flex;
+  justify-content: space-between;  /* Distribui o espaço uniformemente */
+}
+
+.item {
+  flex-basis: 200px;  /* Define a largura inicial do item */
+}
+
+/* Propriedades de Estilo */
+h1 {
+  color: red;  /* Define a cor do texto como vermelho */
+}
+
+p {
+  background-color: lightblue;  /* Define a cor de fundo como azul claro */
+  padding: 20px;  /* Adiciona um espaçamento interno de 20px */
+  border: 1px solid black;  /* Adiciona uma borda preta de 1px */
+  border-radius: 10px;  /* Adiciona uma curvatura de 10px nas bordas */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);  /* Adiciona uma sombra preta com 50% de opacidade */
+}
+
+/* Propriedades de Transição e Animação */
+h1 {
+  transition: color 0.5s ease-in-out;
+}
+
+p {
+  animation: fade-in 2s;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Propriedades de Responsividade */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+  .item {
+    flex-basis: 100%;
+  }
+}
+
+/* Outras propriedades e estilos */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}
+
+nav {
+  background-color: #444;
+  padding: 10px;
+  text-align: center;
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+  margin-right: 20px;
+}
+
+nav a:hover {
+  color: #ccc;
+}
+    </style>
+  <header>
+    <h1>Aprenda JavaScript</h1>
+    <nav>
+      <a href="index.html">Voltar ao Início</a>
+    </nav>
+  </header>
+
+  <section>
+    <h2>O que é JavaScript?</h2>
+    <p>
+      JavaScript é uma linguagem de programação usada para criar interatividade em páginas web. Com ele, você pode manipular o conteúdo HTML, estilizar dinamicamente elementos CSS e adicionar funcionalidades como respostas a eventos do usuário.
+    </p>
+
+    <h3>Estrutura Básica de um Código JavaScript</h3>
+    <p>O JavaScript pode ser incluído diretamente dentro de uma página HTML usando a tag <code>&lt;script&gt;</code>.</p>
+    <pre><code>
+&lt;script&gt;
+  // Este é um comentário em JavaScript
+  console.log("Olá, mundo!");  // Exibe "Olá, mundo!" no console do navegador
+&lt;/script&gt;
+    </code></pre>
+
+    <h3>Variáveis</h3>
+    <p>Em JavaScript, você pode armazenar valores usando variáveis. Existem três maneiras principais de declarar uma variável: <code>var</code>, <code>let</code> e <code>const</code>.</p>
+    <pre><code>
+let nome = "João";  // Variável mutável
+const idade = 30;   // Constante (não pode ser alterada)
+var cidade = "São Paulo";  // Var (antigo, menos usado)
+    </code></pre>
+
+    <h3>Funções</h3>
+    <p>Funções em JavaScript permitem agrupar código reutilizável em blocos que podem ser chamados quantas vezes forem necessários.</p>
+    <pre><code>
+function saudacao(nome) {
+  return "Olá, " + nome + "!";
+}
+
+console.log(saudacao("Maria"));  // Exibe "Olá, Maria!"
+    </code></pre>
+
+    <h3>Eventos</h3>
+    <p>JavaScript pode responder a eventos, como cliques de botões ou o carregamento de uma página.</p>
+    <pre><code>
+document.getElementById("meuBotao").addEventListener("click", function() {
+  alert("Botão clicado!");
+});
+    </code></pre>
+
+    <h3>Manipulação do DOM</h3>
+    <p>
+      O DOM (Document Object Model) representa a estrutura de uma página web como um conjunto de objetos manipuláveis por JavaScript. Com o DOM, você pode acessar e modificar elementos HTML dinamicamente.
+    </p>
+    <pre><code>
+document.getElementById("titulo").innerHTML = "Novo Título";
+    </code></pre>
+
+    <h3>Condições e Laços</h3>
+    <h4>Condições</h4>
+    <p>Instruções condicionais permitem que você controle o fluxo do programa.</p>
+    <pre><code>
+let numero = 10;
+
+if (numero > 5) {
+  console.log("O número é maior que 5");
+} else {
+  console.log("O número é menor ou igual a 5");
+}
+    </code></pre>
+
+    <h4>Laços</h4>
+    <p>Os laços permitem a repetição de uma parte do código várias vezes.</p>
+    <pre><code>
+for (let i = 0; i < 5; i++) {
+  console.log("Número " + i);
+}
+    </code></pre>
+
+    <h3>Arrays e Objetos</h3>
+    <p>JavaScript permite armazenar múltiplos valores em uma única variável usando arrays ou objetos.</p>
+
+    <h4>Array</h4>
+    <pre><code>
+let frutas = ["Maçã", "Banana", "Laranja"];
+console.log(frutas[0]);  // Exibe "Maçã"
+    </code></pre>
+
+    <h4>Objeto</h4>
+    <pre><code>
+  let pessoa = {
+    nome: "Ana",
+    idade: 25,
+    cidade: "Rio de Janeiro"
+  };
+  console.log(pessoa.nome);  // Exibe "Ana"
+    </code></pre>
+  
+    <h3>Promessas e Assíncrono</h3>
+    <p>JavaScript é conhecido por suas capacidades assíncronas. Promises são usadas para lidar com operações que podem demorar, como requisições a servidores.</p>
+    <pre><code>
+  fetch('https://api.exemplo.com/dados')
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.log('Erro:', error));
+    </code></pre>
+  
+    <h3>Mais Recursos JavaScript</h3>
+    <p>JavaScript é uma linguagem extremamente poderosa, com inúmeras funcionalidades para você explorar. Continue aprendendo com exemplos práticos e experimentando no seu navegador!</p>
+  
+    <h3>Exemplos de Uso</h3>
+    <p>Aqui estão alguns exemplos de como você pode usar JavaScript em sua página web:</p>
+  
+    <h4>Exemplo 1: Contador de Cliques</h4>
+    <pre><code>
+  let contador = 0;
+  
+  document.getElementById("botao").addEventListener("click", function() {
+    contador++;
+    document.getElementById("contador").innerHTML = "Cliques: " + contador;
+  });
+    </code></pre>
+  
+    <h4>Exemplo 2: Formulário de Contato</h4>
+    <pre><code>
+  document.getElementById("formulario").addEventListener("submit", function(event) {
+    event.preventDefault();
+    let nome = document.getElementById("nome").value;
+    let email = document.getElementById("email").value;
+    let mensagem = document.getElementById("mensagem").value;
+    console.log("Nome: " + nome);
+    console.log("Email: " + email);
+    console.log("Mensagem: " + mensagem);
+  });
+    </code></pre>
+  
+    <h4>Exemplo 3: Galeria de Imagens</h4>
+    <pre><code>
+  let imagens = ["imagem1.jpg", "imagem2.jpg", "imagem3.jpg"];
+  
+  document.getElementById("galeria").addEventListener("click", function() {
+    let imagemAtual = document.getElementById("imagem-atual").src;
+    let indice = imagens.indexOf(imagemAtual);
+    if (indice >= 0) {
+      indice++;
+      if (indice >= imagens.length) {
+        indice = 0;
+      }
+      document.getElementById("imagem-atual").src = imagens[indice];
+    }
+  });
+    </code></pre>
+  
+    </section>
+  
+    <footer>
+      <p>Glossário de JavaScript - <a href="https://developer.mozilla.org/pt-BR/docs/Web/JavaScript">Leia mais na documentação oficial</a></p>
+    </footer>
+  </body>
+  </html>

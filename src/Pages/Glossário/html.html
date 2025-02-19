@@ -1,0 +1,287 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aprenda HTML - Glossário Completo</title>
+  <link rel="icon" type="image/png" href="Menu-Icon.webp" sizes="32x32">
+  <link rel="stylesheet" href="styles.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1725283356900247"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+    <Style>
+        /* Estrutura Básica de um Arquivo CSS */
+/* Este é um comentário em CSS */
+
+/* Seletor de Elementos */
+h1 {
+  color: blue;  /* Altera a cor do texto do h1 para azul */
+}
+
+p {
+  font-size: 16px;  /* Define o tamanho da fonte dos parágrafos */
+}
+
+/* Classes e IDs */
+.introducao {
+  font-weight: bold;  /* Deixa o texto em negrito */
+}
+
+#titulo-principal {
+  text-align: center;  /* Centraliza o texto */
+}
+
+/* Propriedades de Layout */
+.container {
+  display: flex;
+  justify-content: space-between;  /* Distribui o espaço uniformemente */
+}
+
+.item {
+  flex-basis: 200px;  /* Define a largura inicial do item */
+}
+
+/* Propriedades de Estilo */
+h1 {
+  color: red;  /* Define a cor do texto como vermelho */
+}
+
+p {
+  background-color: lightblue;  /* Define a cor de fundo como azul claro */
+  padding: 20px;  /* Adiciona um espaçamento interno de 20px */
+  border: 1px solid black;  /* Adiciona uma borda preta de 1px */
+  border-radius: 10px;  /* Adiciona uma curvatura de 10px nas bordas */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);  /* Adiciona uma sombra preta com 50% de opacidade */
+}
+
+/* Propriedades de Transição e Animação */
+h1 {
+  transition: color 0.5s ease-in-out;
+}
+
+p {
+  animation: fade-in 2s;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Propriedades de Responsividade */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+  .item {
+    flex-basis: 100%;
+  }
+}
+
+/* Outras propriedades e estilos */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}
+
+nav {
+  background-color: #444;
+  padding: 10px;
+  text-align: center;
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+  margin-right: 20px;
+}
+
+nav a:hover {
+  color: #ccc;
+}
+    </Style>
+  <header>
+    <h1>Aprenda HTML</h1>
+    <nav>
+      <a href="index.html">Voltar ao Início</a>
+    </nav>
+  </header>
+
+  <section>
+    <h2>O que é HTML?</h2>
+    <p>
+      HTML (HyperText Markup Language) é a linguagem padrão usada para criar páginas web. Ela permite estruturar o conteúdo de uma página, criando cabeçalhos, parágrafos, links, imagens e muito mais. Abaixo, você encontrará um glossário com os principais elementos de HTML, acompanhados de explicações e exemplos práticos.
+    </p>
+
+    <h3>Estrutura Básica de um Documento HTML</h3>
+    <p>
+      Todo documento HTML segue uma estrutura básica que é reconhecida por navegadores. Veja abaixo a estrutura mínima que uma página HTML deve ter:
+    </p>
+
+    <pre><code>
+&lt;!DOCTYPE html&gt;  <!-- Declaração do tipo do documento -->
+&lt;html&gt;             <!-- Início do documento HTML -->
+  &lt;head&gt;         <!-- Cabeçalho da página (meta-informações) -->
+    &lt;title&gt;Título da Página&lt;/title&gt;  <!-- Título da página, aparece na aba do navegador -->
+  &lt;/head&gt;
+
+  &lt;body&gt;         <!-- Corpo da página, onde o conteúdo aparece -->
+    &lt;h1&gt;Cabeçalho Principal&lt;/h1&gt;
+    &lt;p&gt;Este é um parágrafo de exemplo.&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+    </code></pre>
+
+    <p><strong>Explicação dos Elementos:</strong></p>
+    <ul>
+      <li><strong>&lt;!DOCTYPE html&gt;</strong>: Informa ao navegador que o documento segue o padrão HTML5.</li>
+      <li><strong>&lt;html&gt;</strong>: A raiz do documento HTML. Todo o conteúdo da página deve estar entre as tags &lt;html&gt; e &lt;/html&gt;.</li>
+      <li><strong>&lt;head&gt;</strong>: Contém meta-informações sobre o documento, como o título, links para CSS e scripts, charset, etc.</li>
+      <li><strong>&lt;title&gt;</strong>: Define o título da página, que aparece na aba do navegador.</li>
+      <li><strong>&lt;body&gt;</strong>: É onde o conteúdo visível da página é colocado, como textos, imagens, links, etc.</li>
+    </ul>
+
+    <h3>Tags HTML Mais Comuns</h3>
+    <h4>&lt;h1&gt; a &lt;h6&gt; - Cabeçalhos</h4>
+    <p>Os elementos de cabeçalho são usados para definir títulos e subtítulos em uma página. Eles variam de &lt;h1&gt; (mais importante) até &lt;h6&gt; (menos importante).</p>
+    <pre><code>
+&lt;h1&gt;Cabeçalho Principal&lt;/h1&gt;   <!-- Título mais importante -->
+&lt;h2&gt;Subtítulo de Seção&lt;/h2&gt;   <!-- Subtítulo -->
+&lt;h3&gt;Subseção&lt;/h3&gt;            <!-- Sub-seção -->
+    </code></pre>
+
+    <h4>&lt;p&gt; - Parágrafo</h4>
+    <p>Define blocos de texto em um parágrafo. O navegador aplica automaticamente uma margem vertical antes e depois de um parágrafo.</p>
+    <pre><code>
+&lt;p&gt;Este é um parágrafo de exemplo.&lt;/p&gt;
+    </code></pre>
+
+    
+
+Peço desculpas pelo corte anterior. Aqui está a continuação do código:
+
+```html
+    <h4>&lt;a&gt; - Link</h4>
+    <p>O elemento &lt;a&gt; (âncora) cria um link clicável.</p>
+    <pre><code>
+&lt;a href="https://www.exemplo.com"&gt;Clique aqui para visitar o Exemplo&lt;/a&gt;
+    </code></pre>
+    <ul>
+      <li><strong>href</strong>: Define o destino do link, seja uma URL externa ou uma seção dentro da própria página.</li>
+    </ul>
+
+    <h4>&lt;img&gt; - Imagem</h4>
+    <p>Incorpora imagens na página. Utiliza o atributo <code>src</code> para definir o caminho da imagem e <code>alt</code> para fornecer um texto alternativo.</p>
+    <pre><code>
+&lt;img src="imagem.jpg" alt="Descrição da imagem"&gt;
+    </code></pre>
+    <ul>
+      <li><strong>src</strong>: Define o caminho para a imagem que será exibida.</li>
+      <li><strong>alt</strong>: Fornece um texto alternativo para a imagem, útil para acessibilidade e SEO.</li>
+    </ul>
+
+    <h3>Formatação de Texto</h3>
+    <p>O HTML também oferece tags para formatar o texto dentro de uma página:</p>
+    <ul>
+      <li><strong>&lt;b&gt; ou &lt;strong&gt;</strong>: Deixa o texto em negrito (forte).</li>
+      <li><strong>&lt;i&gt; ou &lt;em&gt;</strong>: Deixa o texto em itálico (ênfase).</li>
+      <li><strong>&lt;u&gt;</strong>: Sublinha o texto.</li>
+      <li><strong>&lt;br&gt;</strong>: Insere uma quebra de linha.</li>
+    </ul>
+    <pre><code>
+&lt;p&gt;Este é um texto &lt;b&gt;negrito&lt;/b&gt;, &lt;i&gt;itálico&lt;/i&gt; e &lt;u&gt;sublinhado&lt;/u&gt;.&lt;/p&gt;
+    </code></pre>
+
+    <h3>Listas</h3>
+    <h4>&lt;ul&gt; - Lista Não Ordenada</h4>
+    <p>Cria uma lista de itens com marcadores.</p>
+    <pre><code>
+&lt;ul&gt;
+  &lt;li&gt;Item 1&lt;/li&gt;
+  &lt;li&gt;Item 2&lt;/li&gt;
+  &lt;li&gt;Item 3&lt;/li&gt;
+&lt;/ul&gt;
+    </code></pre>
+
+    <h4>&lt;ol&gt; - Lista Ordenada</h4>
+    <p>Cria uma lista de itens numerados.</p>
+    <pre><code>
+&lt;ol&gt;
+  &lt;li&gt;Item 1&lt;/li&gt;
+  &lt;li&gt;Item 2&lt;/li&gt;
+  &lt;li&gt;Item 3&lt;/li&gt;
+&lt;/ol&gt;
+    </code></pre>
+
+    <h3>Formulários</h3>
+    <p>Formulários permitem a interação do usuário com a página, como envio de dados. Veja um exemplo de formulário simples:</p>
+    <pre><code>
+&lt;form action="/enviar" method="POST"&gt;
+  &lt;label for="nome"&gt;Nome:&lt;/label&gt;
+  &lt;input type="text" id="nome" name="nome"&gt;
+  
+  &lt;label for="email"&gt;Email:&lt;/label&gt;
+  &lt;input type="email" id="email" name="email"&gt;
+
+  &lt;input type="submit" value="Enviar"&gt;
+&lt;/form&gt;
+    </code></pre>
+
+    <h3>Comentando Códigos HTML</h3>
+    <p>Em HTML, você pode adicionar comentários que não aparecem no navegador. Esses comentários são úteis para anotações no código.</p>
+    <pre><code>
+&lt;!-- Este é um comentário HTML --&gt;
+    </code></pre>
+
+   
+
+Peço desculpas pelo corte anterior. Aqui está a continuação do código:
+
+```html
+    <h3>Mais Tags e Atributos</h3>
+    <p>Esta é apenas uma introdução aos elementos principais do HTML. Existem muitas outras tags e atributos que permitem construir páginas web complexas e interativas.</p>
+    <p>Alguns exemplos de tags e atributos adicionais incluem:</p>
+    <ul>
+      <li><strong>&lt;table&gt;</strong>: Cria tabelas para organizar dados.</li>
+      <li><strong>&lt;video&gt;</strong> e <strong>&lt;audio&gt;</strong>: Incorporam mídia de vídeo e áudio.</li>
+      <li><strong>&lt;canvas&gt;</strong>: Permite a criação de gráficos e desenhos dinâmicos.</li>
+      <li><strong>&lt;svg&gt;</strong>: Define gráficos vetoriais escaláveis.</li>
+      <li><strong>&lt;nav&gt;</strong>, <strong>&lt;header&gt;</strong>, <strong>&lt;footer&gt;</strong>: Estruturam a página em seções lógicas.</li>
+      <li><strong>&lt;section&gt;</strong>, <strong>&lt;article&gt;</strong>, <strong>&lt;aside&gt;</strong>: Organizam o conteúdo em seções temáticas.</li>
+    </ul>
+
+    <h3>Práticas Recomendadas</h3>
+    <p>Para escrever HTML de qualidade, é importante seguir algumas práticas recomendadas:</p>
+    <ul>
+      <li><strong>Use tags semânticas</strong>: Em vez de usar apenas <code>&lt;div&gt;</code> e <code>&lt;span&gt;</code>, use tags que descrevam o conteúdo, como <code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, etc.</li>
+      <li><strong>Evite o uso excessivo de IDs</strong>: IDs devem ser únicos em uma página. Prefira usar classes para estilos e seletores.</li>
+      <li><strong>Use atributos de acessibilidade</strong>: Atributos como <code>alt</code>, <code>title</code> e <code>aria-*</code> melhoram a acessibilidade do seu conteúdo.</li>
+      <li><strong>Minimize o uso de tabelas para layout</strong>: Tabelas devem ser usadas para dados tabulares, não para layout de página.</li>
+      <li><strong>Teste em diferentes navegadores e dispositivos</strong>: Certifique-se de que sua página funciona bem em diferentes ambientes.</li>
+    </ul>
+
+    <h3>Conclusão</h3>
+    <p>Este guia ofereceu uma visão geral dos elementos básicos do HTML e como eles podem ser usados para criar páginas web. Lembre-se de que a prática leva à perfeição, então continue a aprender e a experimentar com diferentes tags e atributos para se tornar um desenvolvedor web habilidoso.</p>
+
+  </section>
+
+  <footer>
+    <p>Glossário de CSS - <a href="https://developer.mozilla.org/pt-BR/docs/Web/JavaScript">Leia mais na documentação oficial</a></p>
+  </footer>
+
+</body>
+</html>

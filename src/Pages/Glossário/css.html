@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aprenda CSS - Glossário Completo</title>
+  <link rel="icon" type="image/png" href="Menu-Icon.webp" sizes="32x32">
+  <link rel="stylesheet" href="styles.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1725283356900247"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+    <style>
+        /* Estrutura Básica de um Arquivo CSS */
+/* Este é um comentário em CSS */
+
+/* Seletor de Elementos */
+h1 {
+  color: blue;  /* Altera a cor do texto do h1 para azul */
+}
+
+p {
+  font-size: 16px;  /* Define o tamanho da fonte dos parágrafos */
+}
+
+/* Classes e IDs */
+.introducao {
+  font-weight: bold;  /* Deixa o texto em negrito */
+}
+
+#titulo-principal {
+  text-align: center;  /* Centraliza o texto */
+}
+
+/* Propriedades de Layout */
+.container {
+  display: flex;
+  justify-content: space-between;  /* Distribui o espaço uniformemente */
+}
+
+.item {
+  flex-basis: 200px;  /* Define a largura inicial do item */
+}
+
+/* Propriedades de Estilo */
+h1 {
+  color: red;  /* Define a cor do texto como vermelho */
+}
+
+p {
+  background-color: lightblue;  /* Define a cor de fundo como azul claro */
+  padding: 20px;  /* Adiciona um espaçamento interno de 20px */
+  border: 1px solid black;  /* Adiciona uma borda preta de 1px */
+  border-radius: 10px;  /* Adiciona uma curvatura de 10px nas bordas */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);  /* Adiciona uma sombra preta com 50% de opacidade */
+}
+
+/* Propriedades de Transição e Animação */
+h1 {
+  transition: color 0.5s ease-in-out;
+}
+
+p {
+  animation: fade-in 2s;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Propriedades de Responsividade */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+  .item {
+    flex-basis: 100%;
+  }
+}
+
+/* Outras propriedades e estilos */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}
+
+nav {
+  background-color: #444;
+  padding: 10px;
+  text-align: center;
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+  margin-right: 20px;
+}
+
+nav a:hover {
+  color: #ccc;
+}
+    </style>
+  <header>
+    <h1>Aprenda CSS</h1>
+    <nav>
+      <a href="index.html">Voltar ao Início</a>
+    </nav>
+  </header>
+
+  <section>
+    <h2>O que é CSS?</h2>
+    <p>
+      CSS (Cascading Style Sheets) é a linguagem usada para estilizar páginas HTML. Ela define como os elementos HTML serão exibidos na tela, em papel ou em outros meios. Abaixo você encontrará um glossário com as principais propriedades e conceitos do CSS, juntamente com exemplos práticos.
+    </p>
+
+    <h3>Estrutura Básica de um Arquivo CSS</h3>
+    <p>
+      Um arquivo CSS define regras de estilo para elementos HTML. Cada regra tem um seletor (para indicar o que será estilizado) e um bloco de declarações (com as propriedades e seus valores).
+    </p>
+
+    <pre><code>
+/* Este é um comentário em CSS */
+selector {
+  property: value;  /* Propriedade e valor */
+}
+    </code></pre>
+
+    <h3>Exemplo de Uso em uma Página HTML</h3>
+    <p>Um arquivo CSS pode ser vinculado a uma página HTML usando a tag <code>&lt;link&gt;</code> no cabeçalho do documento.</p>
+    <pre><code>
+&lt;!DOCTYPE html&gt;
+&lt;html lang="pt-br"&gt;
+  &lt;head&gt;
+    &lt;link rel="stylesheet" href="styles.css"&gt;  <!-- Vincula o CSS externo -->
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Título Estilizado&lt;/h1&gt;
+    &lt;p&gt;Este é um parágrafo com estilos aplicados.&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+    </code></pre>
+
+    <h3>Seletor de Elementos</h3>
+    <p>O seletor mais básico no CSS é o seletor de elementos. Ele aplica um estilo a todas as ocorrências de um determinado elemento HTML.</p>
+    <pre><code>
+h1 {
+  color: blue;  /* Altera a cor do texto do h1 para azul */
+}
+p {
+  font-size: 16px;  /* Define o tamanho da fonte dos parágrafos */
+}
+    </code></pre>
+
+    <h3>Classes e IDs</h3>
+    <p>Você pode criar seletores mais específicos utilizando classes (com o símbolo ".") ou IDs (com o símbolo "#").</p>
+    <pre><code>
+/* Estilo para uma classe */
+.introducao {
+  font-weight: bold;  /* Deixa o texto em negrito */
+}
+
+/* Estilo para um ID */
+#titulo-principal {
+  text-align: center;  /* Centraliza o texto */
+}
+    </code></pre>
+
+    <p>No HTML, as classes e IDs são aplicadas assim:</p>
+    <pre><code>
+&lt;h1 id="titulo-principal"&gt;Título Centralizado&lt;/h1&gt;
+&lt;p class="introducao"&gt;Texto em negrito.&lt;/p&gt;
+    </code></pre>
+
+    <h3>Propriedades de Layout</h3>
+    <p>As propriedades de layout definem como os elementos são dispostos na página.</p>
+    <pre><code>
+.container {
+  display: flex;
+  justify-content: space-between;  /* Distribui o espaço uniformemente */
+}
+
+.item {
+  flex-basis: 200px;  /* Define a largura inicial do item */
+}
+    </code></pre>
+
+    <h3>Propriedades de Estilo</h3>
+    <p>As propriedades de estilo definem a aparência dos elementos.</p>
+    <pre><code>
+h1 {
+  color: red;  /* Define a cor do texto como vermelho */
+}
+
+p {
+  background-color: lightblue;  /* Define a cor de fundo como azul claro */
+  padding: 20px;  /* Adiciona um espaçamento interno de 20px */
+  border: 1px solid black;  /* Adiciona uma borda preta de 1px */
+  border-radius: 10px;  /* Adiciona uma curvatura de 10px nas bordas */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);  /* Adiciona uma sombra preta com 50% de opacidade */
+}
+    </code></pre>
+
+    <h3>Propriedades de Transição e Animação</h3>
+    <p>As propriedades de transição e animação definem como os elementos mudam de estado.</p>
+    <pre><code>
+h1 {
+  transition: color 0.5s ease-in-out;  /* Define uma transição de cor com duração de 0.5s e efeito de entrada e saída suave */
+}
+
+p {
+  animation: fade-in 2s infinite;  /* Define uma animação de fade-in com duração de 2s e repetição infinita */
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;  /* Define a opacidade inicial como 0 */
+  }
+  100% {
+    opacity: 1;  /* Define a opacidade final como 1 */
+  }
+}
+    </code></pre>
+
+    <h3>Propriedades de Responsividade</h3>
+    <p>As propriedades de responsividade definem como os elementos se adaptam a diferentes tamanhos de tela.</p>
+    <pre><code>
+@media (max-width: 600px) {
+  h1 {
+    font-size: 24px;  /* Define o tamanho da fonte como 24px em telas menores que 600px */
+  }
+}
+
+@media (max-width: 400px) {
+  p {
+    font-size: 18px;  /* Define o tamanho da fonte como 18px em telas menores que 400px */
+  }
+}
+    </code></pre>
+
+  </section>
+
+  <footer>
+    <p>Glossário de CSS - <a href="https://developer.mozilla.org/pt-BR/docs/Web/CSS">Leia mais na documentação oficial</a></p>
+  </footer>
+</body>
+</html>
