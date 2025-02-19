@@ -20,8 +20,9 @@
 <div class="container">
     <h1>Calculadora de Horário de Saída</h1>
 
-    <div class="input-group">
-        <button type="button" id="openPopup">Calcular Horas de Intervalo</button>
+    <!-- Botão para alternar entre os modos de cálculo -->
+    <div class="btn-group">
+        <button id="toggleMode">Modo Completo</button>
     </div>
 
     <form id="calcForm">
@@ -30,9 +31,20 @@
             <input type="time" id="horaEntrada" required>
         </div>
 
-        <div class="input-group">
+        <div class="input-group default-mode">
             <label for="intervalo">Intervalo Feito (H:MM)</label>
             <input type="time" id="intervalo" step="60" required>
+        </div>
+
+        <!-- Campos adicionais para o modo completo -->
+        <div class="input-group full-mode hidden">
+            <label for="saidaIntervalo">Hora de Saída para Intervalo (HH:MM)</label>
+            <input type="time" id="saidaIntervalo">
+        </div>
+
+        <div class="input-group full-mode hidden">
+            <label for="retornoIntervalo">Hora de Retorno do Intervalo (HH:MM)</label>
+            <input type="time" id="retornoIntervalo">
         </div>
 
         <div class="input-group">
@@ -58,23 +70,6 @@
     <div class="copyright">
         &copy; 2025 @CauanGQ. Todos os direitos reservados.
     </div>
-</div>
-
-<div class="overlay" id="overlay"></div>
-<div class="popup" id="popup">
-    <h2>Calcular Horas de Intervalo</h2>
-    <label for="saidaIntervalo">Horário de Saída para Intervalo (HH:MM)</label>
-    <input type="time" id="saidaIntervalo" required>
-
-    <label for="voltaIntervalo">Horário de Volta do Intervalo (HH:MM)</label>
-    <input type="time" id="voltaIntervalo" required>
-
-    <div class="btn-group">
-        <button id="calcularIntervalo">Calcular Intervalo</button>
-        <button id="closePopup">Fechar</button>
-    </div>
-
-    <div id="intervaloResult"></div>
 </div>
 
 <script src="script.js"></script>
