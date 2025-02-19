@@ -88,3 +88,18 @@ document.getElementById('calcForm').addEventListener('submit', function (event) 
     const resultado = `Seu horário de saída é ${horaSaida.toString().padStart(2, '0')}:${minutoSaida.toString().padStart(2, '0')}`;
     document.getElementById('result').textContent = resultado;
 });
+
+// Função para pular para o próximo campo automaticamente
+const inputs = document.querySelectorAll('input[type="time"]');
+
+inputs.forEach((input, index) => {
+    input.addEventListener('input', function () {
+        const inputLength = input.value.length;
+        const maxLength = input.getAttribute('maxlength');
+
+        // Se o campo estiver completo, pula para o próximo
+        if (inputLength === 5 && index < inputs.length - 1) {  // 5 porque formato é HH:MM
+            inputs[index + 1].focus();
+        }
+    });
+});
