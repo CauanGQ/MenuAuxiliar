@@ -18,6 +18,7 @@
 </div>
 
 <div class="container">
+    <a id="folga" href="/src/Pages/Calendario-Folga/index.html">Calendário de Folgas</a>
     <h1>Calculadora de Horário de Saída</h1>
 
     <!-- Botão para alternar entre os modos de cálculo -->
@@ -28,12 +29,12 @@
     <form id="calcForm">
         <div class="input-group">
             <label for="horaEntrada">Hora de Entrada (HH:MM)</label>
-            <input type="time" id="horaEntrada">
+            <input type="time" id="horaEntrada" required>
         </div>
 
         <div class="input-group default-mode">
             <label for="intervalo">Intervalo Feito (H:MM)</label>
-            <input type="time" id="intervalo" step="60">
+            <input type="time" id="intervalo" step="60" required>
         </div>
 
         <!-- Campos adicionais para o modo completo -->

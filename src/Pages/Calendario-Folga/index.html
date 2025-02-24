@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário de Folgas</title>
+    <link rel="icon" type="image/png" href="/Menu-Icon.webp" sizes="32x32">
+    <link rel="stylesheet" href="/src/Pages/Calendario-Folga/src/css/style.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1725283356900247"
+     crossorigin="anonymous"></script>
+</head>
+<body class="light">
+    
+    <div class="container">
+        <div>
+            <a id="voltar"  href="/src/Pages/Calcular-saida/index.html">Voltar</a>
+        </div>
+        <h1>Calendário de Folgas</h1>
+
+        <form id="form-folga">
+            <div class="input-group">
+                <label for="sexo">Sexo:</label>
+                <select id="sexo" name="sexo">
+                    <option value="homem">Homem</option>
+                    <option value="mulher">Mulher</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="folga-fixa">Folga Fixa da Semana:</label>
+                <select id="folga-fixa" name="folga-fixa">
+                    <option value="segunda">Segunda</option>
+                    <option value="terca">Terça</option>
+                    <option value="quarta">Quarta</option>
+                    <option value="quinta">Quinta</option>
+                    <option value="sexta">Sexta</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="domingo-inicial">Domingo Inicial:</label>
+                <input type="date" id="domingo-inicial" name="domingo-inicial">
+            </div>
+
+            <button type="button" id="gerar-calendario">Gerar Calendário</button>
+        </form>
+
+        <!-- Layouts -->
+        <div id="layout-section" class="note">
+            <h2>Layouts Salvos</h2>
+            <div id="lista-layouts-salvos">
+                <!-- Aqui serão inseridos os layouts dinamicamente -->
+            </div>
+            
+            <div class="btn-group">
+                <button id="carregar-layout">Carregar Layout</button>
+                <input type="text" id="nome-layout" placeholder="Nome do Layout">
+                <button id="salvar-layout">Salvar Layout</button>
+            </div>
+            <p>* Digite o nome do layout no campo "Nome do Layout" e clique em "Carregar Layout" para carregar um layout salvo.</p>
+            <P>** Não é possivel adicionar um layout com o mesmo nome, caso deseje sobrescrever um layout salvo, exclua-o e clique em "Salvar Layout" novamente.</P>
+        </div>
+
+        <!-- Exportar e Carregar -->
+        <div id="exportar-carregar-section" class="note">
+            <button id="exportar-dados">Exportar Dados</button>
+            <input type="file" id="carregar-arquivo" accept=".json">
+            <button id="carregar-dados">Carregar Dados</button>
+            <p>* Caso deseje compartilhar sua folga com os layouts, com alguém, clique em "Exportar Dados".</p>
+        </div>
+
+        <!-- Calendário -->
+        <div id="calendario-container">
+            <div id="calendario-header" class="btn-group">
+                <button id="prev-month">←</button>
+                <span id="mes-ano"></span>
+                <button id="next-month">→</button>
+            </div>
+            <div id="dias-semana" class="btn-group">
+                <span>Dom</span>
+                <span>Seg</span>
+                <span>Ter</span>
+                <span>Qua</span>
+                <span>Qui</span>
+                <span>Sex</span>
+                <span>Sáb</span>
+            </div>
+            <div id="dias"></div>
+            <div class="copyright">
+                &copy; 2025 @CauanGQ. Todos os direitos reservados.
+            </div>
+        </div>
+
+        <div class="theme-toggle" id="theme-toggle">
+            <span class="light-icon">☀️</span>
+            <span class="dark-icon hidden">🌙</span>
+        </div>
+    </div>
+
+    <script src="/src/Pages/Calendario-Folga/src/scripts/script.js"></script>
+</body>
+</html>
