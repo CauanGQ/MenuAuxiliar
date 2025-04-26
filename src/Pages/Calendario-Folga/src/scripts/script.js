@@ -120,7 +120,7 @@ function verificarFolga(diaDiv, dia) {
         // Definir folgas masculinas (2 domingos trabalhados e 1 de folga)
         if (sexoUsuario === 'homem' && diaSemana === 0) {
             const semanasDesdeInicio = Math.floor((data - domingoInicial) / (1000 * 60 * 60 * 24 * 7)); // Quantidade de semanas desde o domingo inicial
-            if (semanasDesdeInicio % 3 === 2) { // Folga a cada terceiro domingo
+            if (semanasDesdeInicio % 3 === 0) { // Folga a cada terceiro domingo
                 diaDiv.classList.add('folga');
             }
         }
