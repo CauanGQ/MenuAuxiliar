@@ -1,0 +1,2698 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Escala de Funcionários</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1725283356900247"
+     crossorigin="anonymous"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        
+        .checkbox-container input[type="checkbox"] {
+            display: none;
+        }
+        
+        .checkbox-container label {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #3b82f6;
+            border-radius: 4px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .checkbox-container input[type="checkbox"]:checked + label {
+            background-color: #3b82f6;
+        }
+        
+        .checkbox-container input[type="checkbox"]:checked + label::after {
+            content: "✓";
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .time-input {
+            width: 80px;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.25rem;
+            text-align: center;
+        }
+        
+        .folga {
+            background-color: #f0fdf4;
+            color: #16a34a;
+        }
+        
+        .trabalho {
+            background-color: #eff6ff;
+            color: #1d4ed8;
+        }
+        
+        .domingo-folga {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+        
+        .dia-atual {
+            background-color: #fef3c7;
+            font-weight: bold;
+        }
+        
+        .grafico-container {
+            height: 300px;
+            margin-bottom: 2rem;
+        }
+        
+        /* Estilos para as novas colunas */
+.caixa-column {
+    width: 80px;
+    border-left: 1px dashed #ccc !important;
+}
+
+.obs-column {
+    width: 120px;
+}
+
+@media print {
+    .caixa-column {
+        background-color: #f9f9f9;
+    }
+}
+
+        @media print {
+    body * {
+        visibility: hidden;
+    }
+    .print-day-section, .print-day-section * {
+        visibility: visible;
+    }
+    .print-day-section {
+        page-break-after: always;
+        position: relative;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: auto;
+        background-color: white;
+        z-index: 9999;
+        padding: 20px;
+    }
+    .print-day-section:last-child {
+        page-break-after: auto;
+    }
+    .no-print {
+        display: none !important;
+    }
+    .grafico-container {
+        display: none !important;
+    }
+    .hidden-print {
+        display: none !important;
+    }
+    .show-print {
+        display: table-cell !important;
+    }
+    .folga-print {
+        background-color: #f0fdf4 !important;
+        color: #16a34a !important;
+    }
+    .trabalho-print {
+        background-color: #eff6ff !important;
+        color: #1d4ed8 !important;
+    }
+    .header-print {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .table-number {
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+}
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .tab-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem 0.5rem 0 0;
+            background-color: #e5e7eb;
+            cursor: pointer;
+            margin-right: 0.25rem;
+        }
+        
+        .tab-button.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .hidden-print {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8" id="app">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-blue-800">
+                <i class="fas fa-users mr-2"></i>Gestão de Escalas
+            </h1>
+            <div class="flex space-x-2">
+                <button id="printSchedule" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center no-print">
+                    <i class="fas fa-print mr-2"></i> Imprimir
+                </button>
+                <button id="exportData" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center no-print">
+                    <i class="fas fa-file-export mr-2"></i> Exportar
+                </button>
+                <button id="importData" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center no-print">
+                    <i class="fas fa-file-import mr-2"></i> Importar
+                </button>
+                <button id="addEmployeeBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center no-print">
+                    <i class="fas fa-plus mr-2"></i> Adicionar
+                </button>
+            </div>
+        </header>
+        
+        <!-- Tabs -->
+        <div class="flex mb-4 no-print">
+            <button class="tab-button active" data-tab="escala">Escala</button>
+            <button class="tab-button" data-tab="funcionarios">Funcionários</button>
+            <button class="tab-button" data-tab="graficos">Gráficos</button>
+            <button class="tab-button" data-tab="configuracoes">Configurações</button>
+        </div>
+        
+        <!-- Tab Contents -->
+        <div class="tab-content active" id="escala-tab">
+            <!-- Weekly Schedule -->
+            <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-800">Escala Semanal</h2>
+                    <div class="flex items-center space-x-4">
+                        <button id="prevWeek" class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span id="currentWeek" class="font-medium"></span>
+                        <button id="nextWeek" class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <button id="generateSchedule" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded">
+                            <i class="fas fa-sync-alt mr-1"></i> Gerar
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Funcionário
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Seg
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    1º Turno
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    2º Turno
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    Obs
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Ter
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    1º Turno
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    2º Turno
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    Obs
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Qua
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    1º Turno
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    2º Turno
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    Obs
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Qui
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    1º Turno
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    2º Turno
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    Obs
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Sex
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    1º Turno
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    2º Turno
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    Obs
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Sáb
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    1º Turno
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    2º Turno
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    Obs
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Dom
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    1º Turno
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    2º Turno
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden-print">
+                                    Obs
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="scheduleTableBody">
+                            <!-- Schedule rows will be added here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Printable Schedule (hidden until print) -->
+            <div id="printableSchedule" class="hidden">
+    <div class="p-8">
+        <h1 class="text-3xl font-bold text-center mb-6">Escala Semanal por Dia</h1>
+        <div class="text-center mb-8">
+            <p id="printWeekRange" class="text-xl font-medium"></p>
+        </div>
+        
+        <!-- As tabelas por dia serão inseridas aqui dinamicamente -->
+        <div id="printDaysContainer"></div>
+    </div>
+</div>
+                    
+                    <h2 class="text-xl font-bold mb-4">Funcionários Trabalhando</h2>
+                    <table class="min-w-full border border-gray-300 mb-8">
+                        <thead>
+                            <tr>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100">Funcionário</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100">Horário</th>
+                                <th id="printDay1Header" class="border border-gray-300 px-4 py-2 bg-gray-100">Segunda</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">1º Turno</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">2º Turno</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">Obs</th>
+                                <th id="printDay2Header" class="border border-gray-300 px-4 py-2 bg-gray-100">Terça</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">1º Turno</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">2º Turno</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">Obs</th>
+                                <th id="printDay3Header" class="border border-gray-300 px-4 py-2 bg-gray-100">Quarta</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">1º Turno</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">2º Turno</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">Obs</th>
+                                <th id="printDay4Header" class="border border-gray-300 px-4 py-2 bg-gray-100">Quinta</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">1º Turno</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">2º Turno</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">Obs</th>
+                                <th id="printDay5Header" class="border border-gray-300 px-4 py-2 bg-gray-100">Sexta</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">1º Turno</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">2º Turno</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">Obs</th>
+                                <th id="printDay6Header" class="border border-gray-300 px-4 py-2 bg-gray-100">Sábado</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">1º Turno</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">2º Turno</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">Obs</th>
+                                <th id="printDay7Header" class="border border-gray-300 px-4 py-2 bg-gray-100">Domingo</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">1º Turno</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">2º Turno</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100 show-print">Obs</th>
+                            </tr>
+                        </thead>
+                        <tbody id="printScheduleBody">
+                            <!-- Printable schedule rows will be added here -->
+                        </tbody>
+                    </table>
+                    
+                    <h2 class="text-xl font-bold mb-4">Funcionários em Folga</h2>
+                    <table class="min-w-full border border-gray-300 mb-8">
+                        <thead>
+                            <tr>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100">Funcionário</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100">Horário</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100">Segunda</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100">Terça</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100">Quarta</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100">Quinta</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100">Sexta</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100">Sábado</th>
+                                <th class="border border-gray-300 px-4 py-2 bg-gray-100">Domingo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="printOffScheduleBody">
+                            <!-- Printable off schedule rows will be added here -->
+                        </tbody>
+                    </table>
+                    
+                    <div class="mt-8">
+                        <h2 class="text-xl font-bold mb-4">Resumo por Dia</h2>
+                        <table class="min-w-full border border-gray-300">
+                            <thead>
+                                <tr>
+                                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">Dia</th>
+                                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">Total Funcionários</th>
+                                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">Total em Folga</th>
+                                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">Total Trabalhando</th>
+                                </tr>
+                            </thead>
+                            <tbody id="summaryTableBody">
+                                <!-- Summary information will be added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="funcionarios-tab">
+            <!-- Search and Filter -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex-1">
+                    <label for="searchEmployee" class="sr-only">Buscar</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                        <input type="text" id="searchEmployee" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Buscar por nome ou cargo">
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <div>
+                        <label for="filterGender" class="sr-only">Filtrar por gênero</label>
+                        <select id="filterGender" class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                            <option value="">Todos gêneros</option>
+                            <option value="male">Masculino</option>
+                            <option value="female">Feminino</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filterDayOff" class="sr-only">Filtrar por dia de folga</label>
+                        <select id="filterDayOff" class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                            <option value="">Todos dias de folga</option>
+                            <option value="1">Segunda</option>
+                            <option value="2">Terça</option>
+                            <option value="3">Quarta</option>
+                            <option value="4">Quinta</option>
+                            <option value="5">Sexta</option>
+                            <option value="0">Nenhum</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="sortEmployees" class="sr-only">Ordenar por</label>
+                        <select id="sortEmployees" class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                            <option value="name-asc">Nome (A-Z)</option>
+                            <option value="name-desc">Nome (Z-A)</option>
+                            <option value="position-asc">Cargo (A-Z)</option>
+                            <option value="position-desc">Cargo (Z-A)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bulk Actions -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6 flex justify-between items-center slide-in" id="bulkActions" style="display: none;">
+                <div>
+                    <span id="selectedCount" class="font-medium text-blue-700">0</span> funcionários selecionados
+                </div>
+                <div class="space-x-2">
+                    <button id="editBulkBtn" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded">
+                        <i class="fas fa-edit mr-1"></i> Editar
+                    </button>
+                    <button id="deleteBulkBtn" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded">
+                        <i class="fas fa-trash mr-1"></i> Excluir
+                    </button>
+                    <button id="cancelBulkBtn" class="text-gray-500 hover:text-gray-700 px-3 py-1 rounded">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Employee Table -->
+            <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="selectAll">
+                                    <label for="selectAll"></label>
+                                </div>
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Funcionário
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Cargo
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Gênero
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Dia Folga
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Horário
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Ações
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="employeeTableBody">
+                        <!-- Employee rows will be added here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="graficos-tab">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-4">
+                    <h2 class="text-lg font-semibold mb-4">Distribuição por Gênero</h2>
+                    <div class="grafico-container">
+                        <canvas id="genderChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-4">
+                    <h2 class="text-lg font-semibold mb-4">Dias de Folga Fixos</h2>
+                    <div class="grafico-container">
+                        <canvas id="dayOffChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-4">
+                    <h2 class="text-lg font-semibold mb-4">Distribuição de Horários</h2>
+                    <div class="grafico-container">
+                        <canvas id="timeChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-4">
+                    <h2 class="text-lg font-semibold mb-4">Resumo da Semana</h2>
+                    <div class="grafico-container">
+                        <canvas id="weekSummaryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="configuracoes-tab">
+            <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-800">Configurações da Escala</h2>
+                </div>
+                <div class="p-6">
+                    <form id="settingsForm">
+                        <div class="mb-6">
+                            <h3 class="text-md font-medium mb-3">Regras de Escala</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="enableSundayRule" name="enableSundayRule" class="mr-2" checked>
+                                    <label for="enableSundayRule">Aplicar regra especial para domingos</label>
+                                </div>
+                                <div class="ml-6">
+                                    <div class="mb-2">
+                                        <label class="block text-sm font-medium mb-1">Para homens:</label>
+                                        <div class="flex items-center">
+                                            <input type="radio" id="menWork2Off1" name="menSundayRule" value="work2off1" class="mr-2" checked>
+                                            <label for="menWork2Off1">Trabalham 2, folgam 1</label>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Para mulheres:</label>
+                                        <div class="flex items-center">
+                                            <input type="radio" id="womenAlternate" name="womenSundayRule" value="alternate" class="mr-2" checked>
+                                            <label for="womenAlternate">Alternam domingos (1 sim, 1 não)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="sundayOffOnSaturday" name="sundayOffOnSaturday" class="mr-2">
+                                    <label for="sundayOffOnSaturday">Considerar folga de domingo no sábado</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-md font-medium mb-3">Configurações de Visualização</h3>
+                            <div class="space-y-2">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="showCurrentDay" name="showCurrentDay" class="mr-2" checked>
+                                    <label for="showCurrentDay">Destacar dia atual</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="showGraphs" name="showGraphs" class="mr-2" checked>
+                                    <label for="showGraphs">Mostrar gráficos</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                Salvar Configurações
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modals -->
+        <!-- Add Employee Modal -->
+        <div id="addEmployeeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md fade-in">
+                <div class="flex justify-between items-center border-b px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Adicionar Funcionário</h3>
+                    <button id="closeAddModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <form id="addEmployeeForm">
+                        <div class="mb-4">
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                            <input type="text" id="name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="position" class="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
+                            <input type="text" id="position" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gênero</label>
+                            <select id="gender" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <option value="male">Masculino</option>
+                                <option value="female">Feminino</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Dia Fixo de Folga</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="flex items-center">
+                                    <input type="radio" id="noFixedDay" name="fixedDayOff" value="" class="mr-2" checked>
+                                    <label for="noFixedDay">Nenhum</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="mondayOff" name="fixedDayOff" value="1" class="mr-2">
+                                    <label for="mondayOff">Segunda</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="tuesdayOff" name="fixedDayOff" value="2" class="mr-2">
+                                    <label for="tuesdayOff">Terça</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="wednesdayOff" name="fixedDayOff" value="3" class="mr-2">
+                                    <label for="wednesdayOff">Quarta</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="thursdayOff" name="fixedDayOff" value="4" class="mr-2">
+                                    <label for="thursdayOff">Quinta</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="fridayOff" name="fixedDayOff" value="5" class="mr-2">
+                                    <label for="fridayOff">Sexta</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Data de Início (Domingo)</label>
+                            <input type="date" id="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="startTime" class="block text-sm font-medium text-gray-700 mb-1">Entrada</label>
+                                <input type="time" id="startTime" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            <div>
+                                <label for="endTime" class="block text-sm font-medium text-gray-700 mb-1">Saída</label>
+                                <input type="time" id="endTime" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label for="breakOut" class="block text-sm font-medium text-gray-700 mb-1">Saída Intervalo</label>
+                                <input type="time" id="breakOut" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            <div>
+                                <label for="breakIn" class="block text-sm font-medium text-gray-700 mb-1">Volta Intervalo</label>
+                                <input type="time" id="breakIn" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" id="cancelAddEmployee" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                Adicionar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add Multiple Employees Modal -->
+        <div id="addMultipleEmployeesModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl fade-in">
+                <div class="flex justify-between items-center border-b px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Adicionar Múltiplos Funcionários</h3>
+                    <button id="closeAddMultipleModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div class="mb-6">
+                        <p class="text-sm text-gray-600 mb-4">Insira os dados dos funcionários, um por linha, no formato: Nome,Cargo,Gênero(M/F),DiaFolga(1-5 ou vazio),HoraEntrada,HoraSaída,SaídaIntervalo,VoltaIntervalo,DataInício(opcional)</p>
+                        <p class="text-sm text-gray-500">Exemplo: João Silva,Operador,M,3,08:00,17:00,12:00,13:00,2023-01-01</p>
+                    </div>
+                    <div class="mb-4">
+                        <label for="multipleEmployeesData" class="block text-sm font-medium text-gray-700 mb-1">Dados dos Funcionários</label>
+                        <textarea id="multipleEmployeesData" rows="10" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Insira os dados aqui..."></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" id="cancelAddMultiple" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                            Cancelar
+                        </button>
+                        <button type="button" id="confirmAddMultiple" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Adicionar Funcionários
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Edit Employee Modal -->
+        <div id="editEmployeeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md fade-in">
+                <div class="flex justify-between items-center border-b px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Editar Funcionário</h3>
+                    <button id="closeEditModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <form id="editEmployeeForm">
+                        <input type="hidden" id="editId">
+                        <div class="mb-4">
+                            <label for="editName" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                            <input type="text" id="editName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="editPosition" class="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
+                            <input type="text" id="editPosition" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="editGender" class="block text-sm font-medium text-gray-700 mb-1">Gênero</label>
+                            <select id="editGender" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <option value="male">Masculino</option>
+                                <option value="female">Feminino</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Dia Fixo de Folga</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="flex items-center">
+                                    <input type="radio" id="editNoFixedDay" name="editFixedDayOff" value="" class="mr-2">
+                                    <label for="editNoFixedDay">Nenhum</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="editMondayOff" name="editFixedDayOff" value="1" class="mr-2">
+                                    <label for="editMondayOff">Segunda</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="editTuesdayOff" name="editFixedDayOff" value="2" class="mr-2">
+                                    <label for="editTuesdayOff">Terça</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="editWednesdayOff" name="editFixedDayOff" value="3" class="mr-2">
+                                    <label for="editWednesdayOff">Quarta</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="editThursdayOff" name="editFixedDayOff" value="4" class="mr-2">
+                                    <label for="editThursdayOff">Quinta</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="editFridayOff" name="editFixedDayOff" value="5" class="mr-2">
+                                    <label for="editFridayOff">Sexta</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="editStartDate" class="block text-sm font-medium text-gray-700 mb-1">Data de Início (Domingo)</label>
+                            <input type="date" id="editStartDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="editStartTime" class="block text-sm font-medium text-gray-700 mb-1">Entrada</label>
+                                <input type="time" id="editStartTime" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            <div>
+                                <label for="editEndTime" class="block text-sm font-medium text-gray-700 mb-1">Saída</label>
+                                <input type="time" id="editEndTime" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label for="editBreakOut" class="block text-sm font-medium text-gray-700 mb-1">Saída Intervalo</label>
+                                <input type="time" id="editBreakOut" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            <div>
+                                <label for="editBreakIn" class="block text-sm font-medium text-gray-700 mb-1">Volta Intervalo</label>
+                                <input type="time" id="editBreakIn" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" id="cancelEditEmployee" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bulk Edit Modal -->
+        <div id="bulkEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md fade-in">
+                <div class="flex justify-between items-center border-b px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Editar Múltiplos Funcionários</h3>
+                    <button id="closeBulkEditModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <form id="bulkEditForm">
+                        <div class="mb-4">
+                            <p id="bulkEditCount" class="text-sm text-gray-600 mb-4"></p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="bulkStartTime" class="block text-sm font-medium text-gray-700 mb-1">Entrada</label>
+                                <input type="time" id="bulkStartTime" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="bulkEndTime" class="block text-sm font-medium text-gray-700 mb-1">Saída</label>
+                                <input type="time" id="bulkEndTime" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label for="bulkBreakOut" class="block text-sm font-medium text-gray-700 mb-1">Saída Intervalo</label>
+                                <input type="time" id="bulkBreakOut" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="bulkBreakIn" class="block text-sm font-medium text-gray-700 mb-1">Volta Intervalo</label>
+                                <input type="time" id="bulkBreakIn" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" id="cancelBulkEdit" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                Aplicar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Confirmation Modal -->
+        <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md fade-in">
+                <div class="flex justify-between items-center border-b px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-800" id="confirmTitle">Confirmar Ação</h3>
+                    <button id="closeConfirmModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <p id="confirmMessage" class="mb-6">Tem certeza que deseja realizar esta ação?</p>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" id="cancelConfirm" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                            Cancelar
+                        </button>
+                        <button type="button" id="confirmAction" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                            Confirmar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Import Data Modal -->
+        <div id="importDataModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md fade-in">
+                <div class="flex justify-between items-center border-b px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Importar Dados</h3>
+                    <button id="closeImportDataModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <form id="importDataForm">
+                        <div class="mb-4">
+                            <label for="importFile" class="block text-sm font-medium text-gray-700 mb-1">Arquivo JSON</label>
+                            <input type="file" id="importFile" accept=".json" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Opções de Importação</label>
+                            <div class="space-y-2">
+                                <div class="flex items-center">
+                                    <input type="radio" id="importReplace" name="importOption" value="replace" class="mr-2" checked>
+                                    <label for="importReplace">Substituir todos os dados</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="importMerge" name="importOption" value="merge" class="mr-2">
+                                    <label for="importMerge">Mesclar com dados existentes</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" id="cancelImportData" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                Importar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Print Options Modal -->
+        <div id="printOptionsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md fade-in">
+                <div class="flex justify-between items-center border-b px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Opções de Impressão</h3>
+                    <button id="closePrintOptionsModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <form id="printOptionsForm">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Dias para Imprimir</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="printSunday" name="printDays" value="0" class="mr-2" checked>
+                                    <label for="printSunday">Domingo</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="printMonday" name="printDays" value="1" class="mr-2" checked>
+                                    <label for="printMonday">Segunda</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="printTuesday" name="printDays" value="2" class="mr-2" checked>
+                                    <label for="printTuesday">Terça</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="printWednesday" name="printDays" value="3" class="mr-2" checked>
+                                    <label for="printWednesday">Quarta</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="printThursday" name="printDays" value="4" class="mr-2" checked>
+                                    <label for="printThursday">Quinta</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="printFriday" name="printDays" value="5" class="mr-2" checked>
+                                    <label for="printFriday">Sexta</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="printSaturday" name="printDays" value="6" class="mr-2" checked>
+                                    <label for="printSaturday">Sábado</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" id="cancelPrintOptions" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                Imprimir
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados de exemplo - em uma aplicação real isso viria de um banco de dados
+        let employees = [
+            { id: 1, name: "João Silva", position: "Operador", gender: "male", fixedDayOff: "", startTime: "08:00", breakOut: "12:00", breakIn: "13:00", endTime: "17:00", lastSundayWorked: false, sundayCount: 0, startDate: new Date().toISOString() },
+            { id: 2, name: "Maria Santos", position: "Supervisora", gender: "female", fixedDayOff: "3", startTime: "09:00", breakOut: "12:30", breakIn: "13:30", endTime: "18:00", lastSundayWorked: false, sundayCount: 0, startDate: new Date().toISOString() },
+            { id: 3, name: "Carlos Oliveira", position: "Gerente", gender: "male", fixedDayOff: "5", startTime: "07:00", breakOut: "12:00", breakIn: "13:00", endTime: "16:00", lastSundayWorked: true, sundayCount: 1, startDate: new Date().toISOString() },
+            { id: 4, name: "Ana Pereira", position: "Assistente", gender: "female", fixedDayOff: "", startTime: "10:00", breakOut: "13:00", breakIn: "14:00", endTime: "19:00", lastSundayWorked: true, sundayCount: 1, startDate: new Date().toISOString() }
+        ];
+        
+        let selectedEmployees = [];
+        let nextId = 5;
+        let currentWeekStart = getMonday(new Date());
+        let selectedPrintDays = [0, 1, 2, 3, 4, 5, 6]; // Todos os dias selecionados por padrão
+        
+        // Configurações
+        let settings = {
+            enableSundayRule: true,
+            menSundayRule: "work2off1", // "work2off1" ou "alternate"
+            womenSundayRule: "alternate",
+            sundayOffOnSaturday: false,
+            showCurrentDay: true,
+            showGraphs: true
+        };
+        
+        // Gráficos
+        let genderChart, dayOffChart, timeChart, weekSummaryChart;
+        
+        // Elementos DOM
+        const employeeTableBody = document.getElementById('employeeTableBody');
+        const addEmployeeBtn = document.getElementById('addEmployeeBtn');
+        const addEmployeeModal = document.getElementById('addEmployeeModal');
+        const closeAddModal = document.getElementById('closeAddModal');
+        const cancelAddEmployee = document.getElementById('cancelAddEmployee');
+        const addEmployeeForm = document.getElementById('addEmployeeForm');
+        const addMultipleEmployeesModal = document.getElementById('addMultipleEmployeesModal');
+        const closeAddMultipleModal = document.getElementById('closeAddMultipleModal');
+        const cancelAddMultiple = document.getElementById('cancelAddMultiple');
+        const confirmAddMultiple = document.getElementById('confirmAddMultiple');
+        const multipleEmployeesData = document.getElementById('multipleEmployeesData');
+        const editEmployeeModal = document.getElementById('editEmployeeModal');
+        const closeEditModal = document.getElementById('closeEditModal');
+        const cancelEditEmployee = document.getElementById('cancelEditEmployee');
+        const editEmployeeForm = document.getElementById('editEmployeeForm');
+        const bulkActions = document.getElementById('bulkActions');
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const selectedCount = document.getElementById('selectedCount');
+        const editBulkBtn = document.getElementById('editBulkBtn');
+        const deleteBulkBtn = document.getElementById('deleteBulkBtn');
+        const cancelBulkBtn = document.getElementById('cancelBulkBtn');
+        const bulkEditModal = document.getElementById('bulkEditModal');
+        const closeBulkEditModal = document.getElementById('closeBulkEditModal');
+        const cancelBulkEdit = document.getElementById('cancelBulkEdit');
+        const bulkEditForm = document.getElementById('bulkEditForm');
+        const bulkEditCount = document.getElementById('bulkEditCount');
+        const confirmModal = document.getElementById('confirmModal');
+        const closeConfirmModal = document.getElementById('closeConfirmModal');
+        const cancelConfirm = document.getElementById('cancelConfirm');
+        const confirmAction = document.getElementById('confirmAction');
+        const confirmTitle = document.getElementById('confirmTitle');
+        const confirmMessage = document.getElementById('confirmMessage');
+        const scheduleTableBody = document.getElementById('scheduleTableBody');
+        const currentWeek = document.getElementById('currentWeek');
+        const prevWeek = document.getElementById('prevWeek');
+        const nextWeek = document.getElementById('nextWeek');
+        const generateSchedule = document.getElementById('generateSchedule');
+        const printSchedule = document.getElementById('printSchedule');
+        const printOptionsModal = document.getElementById('printOptionsModal');
+        const closePrintOptionsModal = document.getElementById('closePrintOptionsModal');
+        const cancelPrintOptions = document.getElementById('cancelPrintOptions');
+        const printOptionsForm = document.getElementById('printOptionsForm');
+        const printableSchedule = document.getElementById('printableSchedule');
+        const printWeekRange = document.getElementById('printWeekRange');
+        const printScheduleBody = document.getElementById('printScheduleBody');
+        const printOffScheduleBody = document.getElementById('printOffScheduleBody');
+        const summaryTableBody = document.getElementById('summaryTableBody');
+        const exportData = document.getElementById('exportData');
+        const importData = document.getElementById('importData');
+        const importDataModal = document.getElementById('importDataModal');
+        const closeImportDataModal = document.getElementById('closeImportDataModal');
+        const cancelImportData = document.getElementById('cancelImportData');
+        const importDataForm = document.getElementById('importDataForm');
+        const importFile = document.getElementById('importFile');
+        const settingsForm = document.getElementById('settingsForm');
+        const searchEmployee = document.getElementById('searchEmployee');
+        const filterGender = document.getElementById('filterGender');
+        const filterDayOff = document.getElementById('filterDayOff');
+        const sortEmployees = document.getElementById('sortEmployees');
+        
+        // Elementos de abas
+        const tabs = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Inicializa o aplicativo
+        function init() {
+            renderEmployeeTable();
+            renderWeeklySchedule();
+            renderCharts();
+            setupEventListeners();
+            loadSettings();
+            
+            // Define a data inicial no modal de adicionar funcionário
+            const today = new Date();
+            document.getElementById('startDate').valueAsDate = today;
+            
+            // Carrega dados do localStorage se disponíveis
+            loadFromLocalStorage();
+        }
+        
+        // Renderiza a tabela de funcionários com filtros e ordenação
+        function renderEmployeeTable() {
+            employeeTableBody.innerHTML = '';
+            
+            // Aplica filtros e ordenação
+            let filteredEmployees = [...employees];
+            
+            // Filtro de busca
+            const searchTerm = searchEmployee.value.toLowerCase();
+            if (searchTerm) {
+                filteredEmployees = filteredEmployees.filter(employee => 
+                    employee.name.toLowerCase().includes(searchTerm) || 
+                    employee.position.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Filtro por gênero
+            const genderFilter = filterGender.value;
+            if (genderFilter) {
+                filteredEmployees = filteredEmployees.filter(employee => employee.gender === genderFilter);
+            }
+            
+            // Filtro por dia de folga
+            const dayOffFilter = filterDayOff.value;
+            if (dayOffFilter !== '') {
+                if (dayOffFilter === '0') {
+                    filteredEmployees = filteredEmployees.filter(employee => !employee.fixedDayOff);
+                } else {
+                    filteredEmployees = filteredEmployees.filter(employee => employee.fixedDayOff === dayOffFilter);
+                }
+            }
+            
+            // Ordenação
+            const sortOption = sortEmployees.value;
+            filteredEmployees.sort((a, b) => {
+                switch (sortOption) {
+                    case 'name-asc':
+                        return a.name.localeCompare(b.name);
+                    case 'name-desc':
+                        return b.name.localeCompare(a.name);
+                    case 'position-asc':
+                        return a.position.localeCompare(b.position);
+                    case 'position-desc':
+                        return b.position.localeCompare(a.position);
+                    default:
+                        return 0;
+                }
+            });
+            
+            // Renderiza os funcionários
+            filteredEmployees.forEach(employee => {
+                const isSelected = selectedEmployees.includes(employee.id);
+                
+                const row = document.createElement('tr');
+                row.className = `hover:bg-gray-50 ${isSelected ? 'bg-blue-50' : ''}`;
+                row.dataset.id = employee.id;
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="select-${employee.id}" ${isSelected ? 'checked' : ''}>
+                            <label for="select-${employee.id}"></label>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium">
+                                ${employee.name.split(' ').map(n => n[0]).join('')}
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${employee.name}</div>
+                                <div class="text-sm text-gray-500">ID: ${employee.id}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${employee.position}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${employee.gender === 'male' ? 'Masculino' : 'Feminino'}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${getDayOffName(employee.fixedDayOff)}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${employee.startTime} - ${employee.endTime}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button class="text-blue-600 hover:text-blue-900 mr-3 edit-btn" data-id="${employee.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="text-red-600 hover:text-red-900 delete-btn" data-id="${employee.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                employeeTableBody.appendChild(row);
+            });
+            
+            // Atualiza a seleção de todos os checkboxes
+            selectAllCheckbox.checked = selectedEmployees.length > 0 && selectedEmployees.length === employees.length;
+            
+            // Atualiza a contagem de selecionados
+            selectedCount.textContent = selectedEmployees.length;
+            
+            // Mostra/oculta ações em massa
+            if (selectedEmployees.length > 0) {
+                bulkActions.style.display = 'flex';
+            } else {
+                bulkActions.style.display = 'none';
+            }
+            
+            // Salva no localStorage sempre que a tabela é renderizada
+            saveToLocalStorage();
+        }
+        
+        // Obtém o nome do dia de folga
+        function getDayOffName(dayValue) {
+            if (!dayValue) return 'Nenhum';
+            const days = ['', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+            return days[parseInt(dayValue)] || 'Nenhum';
+        }
+        
+        // Obtém o status do domingo para um funcionário
+        function getSundayStatus(employee, date) {
+            const employeeStartDate = new Date(employee.startDate);
+            const employeeSunday = getSunday(employeeStartDate);
+            
+            // Calcula a diferença em semanas entre a data atual e a data de início do funcionário
+            const diffInMs = date - employeeSunday;
+            const diffInWeeks = Math.floor(diffInMs / (7 * 24 * 60 * 60 * 1000));
+            
+            if (employee.gender === 'female') {
+                // Mulheres: folgam domingos alternados
+                return diffInWeeks % 2 === 0 ? 'Trabalha' : 'Folga';
+            } else {
+                // Homens: trabalham 2 domingos, folgam 1
+                return diffInWeeks % 3 !== 2 ? 'Trabalha' : 'Folga';
+            }
+        }
+        
+        // Renderiza a escala semanal
+        function renderWeeklySchedule() {
+            scheduleTableBody.innerHTML = '';
+            
+            // Formata a exibição da semana
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            currentWeek.textContent = `Semana de ${currentWeekStart.toLocaleDateString('pt-BR', options)} a ${weekEnd.toLocaleDateString('pt-BR', options)}`;
+            
+            // Cria linhas para cada funcionário
+            employees.forEach(employee => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                
+                // Célula do nome do funcionário
+                const nameCell = document.createElement('td');
+                nameCell.className = 'px-6 py-4 whitespace-nowrap';
+                nameCell.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium">
+                            ${employee.name.split(' ').map(n => n[0]).join('')}
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">${employee.name}</div>
+                            <div class="text-sm text-gray-500">${employee.position}</div>
+                        </div>
+                    </div>
+                `;
+                row.appendChild(nameCell);
+                
+                // Cria células para cada dia da semana (começando na segunda-feira)
+                for (let i = 1; i <= 7; i++) {
+                    const dayIndex = i % 7; // 1=Seg, 2=Ter, ..., 6=Sáb, 0=Dom
+                    const day = new Date(currentWeekStart);
+                    day.setDate(day.getDate() + (i - 1));
+                    
+                    // Célula principal do dia
+                    const dayCell = document.createElement('td');
+                    dayCell.className = 'px-6 py-4 whitespace-nowrap text-center';
+                    
+                    // Verifica se é hoje
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    if (settings.showCurrentDay && day.toDateString() === today.toDateString()) {
+                        dayCell.classList.add('dia-atual');
+                    }
+                    
+                    let dayStatus = '';
+                    let dayClass = '';
+                    
+                    // Verifica se é domingo (dia 0)
+                    if (dayIndex === 0 && settings.enableSundayRule) {
+                        const status = getSundayStatus(employee, day);
+                        dayStatus = status;
+                        dayClass = status === 'Trabalha' ? ' trabalho' : ' folga';
+                    } else if (settings.sundayOffOnSaturday && dayIndex === 6) {
+                        // Verifica se o próximo dia é domingo e o funcionário tem folga no domingo
+                        const nextDay = new Date(day);
+                        nextDay.setDate(nextDay.getDate() + 1);
+                        
+                        if (nextDay.getDay() === 0 && settings.enableSundayRule) {
+                            const nextSundayStatus = getSundayStatus(employee, nextDay);
+                            
+                            if (nextSundayStatus === 'Folga') {
+                                dayStatus = 'Folga (Dom)';
+                                dayClass = ' domingo-folga';
+                            }
+                        }
+                        
+                        if (!dayStatus) {
+                            // Sábado normal
+                            if (employee.fixedDayOff && dayIndex === parseInt(employee.fixedDayOff)) {
+                                dayStatus = 'Folga';
+                                dayClass = ' folga';
+                            } else {
+                                dayStatus = 'Trabalha';
+                                dayClass = ' trabalho';
+                            }
+                        }
+                    } else if (employee.fixedDayOff && dayIndex === parseInt(employee.fixedDayOff)) {
+                        // Dia de folga fixo
+                        dayStatus = 'Folga';
+                        dayClass = ' folga';
+                    } else {
+                        // Dia normal de trabalho
+                        dayStatus = 'Trabalha';
+                        dayClass = ' trabalho';
+                    }
+                    
+                    dayCell.textContent = dayStatus;
+                    dayCell.className += dayClass;
+                    row.appendChild(dayCell);
+                    
+                    // Adiciona células vazias para 1º Turno, 2º Turno e Obs (ocultas na impressão)
+                    const turno1Cell = document.createElement('td');
+                    turno1Cell.className = 'px-6 py-4 whitespace-nowrap text-center hidden-print';
+                    turno1Cell.textContent = ''; // Sempre vazio para o primeiro turno
+                    row.appendChild(turno1Cell);
+                    
+                    const turno2Cell = document.createElement('td');
+                    turno2Cell.className = 'px-6 py-4 whitespace-nowrap text-center hidden-print';
+                    turno2Cell.textContent = ''; // Sempre vazio para o segundo turno
+                    row.appendChild(turno2Cell);
+                    
+                    const obsCell = document.createElement('td');
+                    obsCell.className = 'px-6 py-4 whitespace-nowrap text-center hidden-print';
+                    obsCell.textContent = ''; // Sempre vazio para observações
+                    row.appendChild(obsCell);
+                }
+                
+                scheduleTableBody.appendChild(row);
+            });
+            
+            // Salva no localStorage sempre que a escala é renderizada
+            saveToLocalStorage();
+        }
+        
+        // Atualiza a escala para impressão
+        function updatePrintableSchedule() {
+            printScheduleBody.innerHTML = '';
+            printOffScheduleBody.innerHTML = '';
+            summaryTableBody.innerHTML = '';
+            
+            // Formata a exibição da semana para impressão
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            printWeekRange.textContent = `Semana de ${currentWeekStart.toLocaleDateString('pt-BR', options)} a ${weekEnd.toLocaleDateString('pt-BR', options)}`;
+            
+            // Oculta/mostra colunas de dias com base na seleção
+            const dayHeaders = [
+                document.getElementById('printDay1Header'),
+                document.getElementById('printDay2Header'),
+                document.getElementById('printDay3Header'),
+                document.getElementById('printDay4Header'),
+                document.getElementById('printDay5Header'),
+                document.getElementById('printDay6Header'),
+                document.getElementById('printDay7Header')
+            ];
+            
+            const daysOfWeek = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+            
+            // Atualiza a visibilidade dos cabeçalhos dos dias
+            for (let i = 0; i < 7; i++) {
+                if (selectedPrintDays.includes(i)) {
+                    dayHeaders[i].style.display = 'table-cell';
+                    dayHeaders[i].textContent = daysOfWeek[i];
+                } else {
+                    dayHeaders[i].style.display = 'none';
+                }
+            }
+            
+            // Cria linhas da escala para impressão para funcionários trabalhando
+            employees.forEach(employee => {
+                const row = document.createElement('tr');
+                
+                // Célula do nome do funcionário
+                const nameCell = document.createElement('td');
+                nameCell.className = 'border border-gray-300 px-4 py-2';
+                nameCell.textContent = `${employee.name} (${employee.position})`;
+                row.appendChild(nameCell);
+                
+                // Célula de Horário (igual para todos os dias)
+                const scheduleCell = document.createElement('td');
+                scheduleCell.className = 'border border-gray-300 px-4 py-2 text-center';
+                scheduleCell.textContent = `${employee.startTime} - ${employee.breakOut} / ${employee.breakIn} - ${employee.endTime}`;
+                row.appendChild(scheduleCell);
+                
+                // Cria células para cada dia da semana (começando na segunda-feira)
+                for (let i = 1; i <= 7; i++) {
+                    const dayIndex = i % 7; // 1=Seg, 2=Ter, ..., 6=Sáb, 0=Dom
+                    if (!selectedPrintDays.includes(dayIndex)) continue;
+                    
+                    const day = new Date(currentWeekStart);
+                    day.setDate(day.getDate() + (i - 1));
+                    
+                    // Célula principal do dia
+                    const dayCell = document.createElement('td');
+                    dayCell.className = 'border border-gray-300 px-4 py-2 text-center';
+                    
+                    let dayStatus = '';
+                    let dayClass = '';
+                    
+                    // Verifica se é domingo (dia 0)
+                    if (dayIndex === 0 && settings.enableSundayRule) {
+                        const status = getSundayStatus(employee, day);
+                        dayStatus = status;
+                        dayClass = status === 'Trabalha' ? ' trabalho' : ' folga-print';
+                    } else if (settings.sundayOffOnSaturday && dayIndex === 6) {
+                        // Verifica se o próximo dia é domingo e o funcionário tem folga no domingo
+                        const nextDay = new Date(day);
+                        nextDay.setDate(nextDay.getDate() + 1);
+                        
+                        if (nextDay.getDay() === 0 && settings.enableSundayRule) {
+                            const nextSundayStatus = getSundayStatus(employee, nextDay);
+                            
+                            if (nextSundayStatus === 'Folga') {
+                                dayStatus = 'Folga (Dom)';
+                                dayClass = ' domingo-folga folga-print';
+                            }
+                        }
+                        
+                        if (!dayStatus) {
+                            // Sábado normal
+                            if (employee.fixedDayOff && dayIndex === parseInt(employee.fixedDayOff)) {
+                                dayStatus = 'Folga';
+                                dayClass = ' folga-print';
+                            } else {
+                                dayStatus = 'Trabalha';
+                                dayClass = ' trabalho';
+                            }
+                        }
+                    } else if (employee.fixedDayOff && dayIndex === parseInt(employee.fixedDayOff)) {
+                        // Dia de folga fixo
+                        dayStatus = 'Folga';
+                        dayClass = ' folga-print';
+                    } else {
+                        // Dia normal de trabalho
+                        dayStatus = 'Trabalha';
+                        dayClass = ' trabalho';
+                    }
+                    
+                    dayCell.textContent = dayStatus;
+                    dayCell.className += dayClass;
+                    row.appendChild(dayCell);
+                    
+                    // Adiciona células vazias para 1º Turno, 2º Turno e Obs (visíveis na impressão)
+                    const turno1Cell = document.createElement('td');
+                    turno1Cell.className = 'border border-gray-300 px-4 py-2 text-center show-print';
+                    turno1Cell.textContent = ''; // Sempre vazio para o primeiro turno
+                    row.appendChild(turno1Cell);
+                    
+                    const turno2Cell = document.createElement('td');
+                    turno2Cell.className = 'border border-gray-300 px-4 py-2 text-center show-print';
+                    turno2Cell.textContent = ''; // Sempre vazio para o segundo turno
+                    row.appendChild(turno2Cell);
+                    
+                    const obsCell = document.createElement('td');
+                    obsCell.className = 'border border-gray-300 px-4 py-2 text-center show-print';
+                    obsCell.textContent = ''; // Sempre vazio para observações
+                    row.appendChild(obsCell);
+                }
+                
+                printScheduleBody.appendChild(row);
+            });
+            
+            // Cria linhas da escala para impressão para funcionários em folga
+            employees.forEach(employee => {
+                const row = document.createElement('tr');
+                
+                // Célula do nome do funcionário
+                const nameCell = document.createElement('td');
+                nameCell.className = 'border border-gray-300 px-4 py-2';
+                nameCell.textContent = `${employee.name} (${employee.position})`;
+                row.appendChild(nameCell);
+                
+                // Célula de Horário (igual para todos os dias)
+                const scheduleCell = document.createElement('td');
+                scheduleCell.className = 'border border-gray-300 px-4 py-2 text-center';
+                scheduleCell.textContent = `${employee.startTime} - ${employee.breakOut} / ${employee.breakIn} - ${employee.endTime}`;
+                row.appendChild(scheduleCell);
+                
+                // Cria células para cada dia da semana (começando na segunda-feira)
+                for (let i = 1; i <= 7; i++) {
+                    const dayIndex = i % 7; // 1=Seg, 2=Ter, ..., 6=Sáb, 0=Dom
+                    if (!selectedPrintDays.includes(dayIndex)) continue;
+                    
+                    const day = new Date(currentWeekStart);
+                    day.setDate(day.getDate() + (i - 1));
+                    
+                    // Célula principal do dia
+                    const dayCell = document.createElement('td');
+                    dayCell.className = 'border border-gray-300 px-4 py-2 text-center';
+                    
+                    let dayStatus = '';
+                    let dayClass = '';
+                    
+                    // Verifica se é domingo (dia 0)
+                    if (dayIndex === 0 && settings.enableSundayRule) {
+                        const status = getSundayStatus(employee, day);
+                        dayStatus = status;
+                        dayClass = status === 'Trabalha' ? ' trabalho' : ' folga-print';
+                    } else if (settings.sundayOffOnSaturday && dayIndex === 6) {
+                        // Verifica se o próximo dia é domingo e o funcionário tem folga no domingo
+                        const nextDay = new Date(day);
+                        nextDay.setDate(nextDay.getDate() + 1);
+                        
+                        if (nextDay.getDay() === 0 && settings.enableSundayRule) {
+                            const nextSundayStatus = getSundayStatus(employee, nextDay);
+                            
+                            if (nextSundayStatus === 'Folga') {
+                                dayStatus = 'Folga (Dom)';
+                                dayClass = ' domingo-folga folga-print';
+                            }
+                        }
+                        
+                        if (!dayStatus) {
+                            // Sábado normal
+                            if (employee.fixedDayOff && dayIndex === parseInt(employee.fixedDayOff)) {
+                                dayStatus = 'Folga';
+                                dayClass = ' folga-print';
+                            } else {
+                                dayStatus = 'Trabalha';
+                                dayClass = ' trabalho';
+                            }
+                        }
+                    } else if (employee.fixedDayOff && dayIndex === parseInt(employee.fixedDayOff)) {
+                        // Dia de folga fixo
+                        dayStatus = 'Folga';
+                        dayClass = ' folga-print';
+                    } else {
+                        // Dia normal de trabalho
+                        dayStatus = 'Trabalha';
+                        dayClass = ' trabalho';
+                    }
+                    
+                    // Mostra apenas se for um dia de folga
+                    if (dayStatus.includes('Folga')) {
+                        dayCell.textContent = dayStatus;
+                        dayCell.className += ' folga-print';
+                    } else {
+                        dayCell.textContent = '';
+                    }
+                    row.appendChild(dayCell);
+                }
+                
+                // Adiciona apenas se houver dias de folga
+                if (row.querySelector('.folga-print')) {
+                    printOffScheduleBody.appendChild(row);
+                }
+            });
+            
+            // Cria tabela de resumo
+            const daysSummary = Array(7).fill().map(() => ({ total: 0, working: 0, off: 0 }));
+            
+            // Calcula o resumo para cada dia
+            employees.forEach(employee => {
+                for (let i = 1; i <= 7; i++) {
+                    const dayIndex = i % 7;
+                    if (!selectedPrintDays.includes(dayIndex)) continue;
+                    
+                    const day = new Date(currentWeekStart);
+                    day.setDate(day.getDate() + (i - 1));
+                    
+                    daysSummary[dayIndex].total++;
+                    
+                    // Verifica se é domingo (dia 0)
+                    if (dayIndex === 0 && settings.enableSundayRule) {
+                        const status = getSundayStatus(employee, day);
+                        if (status === 'Trabalha') {
+                            daysSummary[dayIndex].working++;
+                        } else {
+                            daysSummary[dayIndex].off++;
+                        }
+                    } else if (settings.sundayOffOnSaturday && dayIndex === 6) {
+                        const nextDay = new Date(day);
+                        nextDay.setDate(nextDay.getDate() + 1);
+                        
+                        if (nextDay.getDay() === 0 && settings.enableSundayRule) {
+                            const nextSundayStatus = getSundayStatus(employee, nextDay);
+                            
+                            if (nextSundayStatus === 'Folga') {
+                                daysSummary[dayIndex].off++;
+                                continue;
+                            }
+                        }
+                        
+                        if (employee.fixedDayOff && dayIndex === parseInt(employee.fixedDayOff)) {
+                            daysSummary[dayIndex].off++;
+                        } else {
+                            daysSummary[dayIndex].working++;
+                        }
+                    } else if (employee.fixedDayOff && dayIndex === parseInt(employee.fixedDayOff)) {
+                        daysSummary[dayIndex].off++;
+                    } else {
+                        daysSummary[dayIndex].working++;
+                    }
+                }
+            });
+            
+            // Adiciona linhas de resumo à tabela
+            for (let i = 1; i <= 7; i++) {
+                const dayIndex = i % 7;
+                if (!selectedPrintDays.includes(dayIndex)) continue;
+                
+                const day = new Date(currentWeekStart);
+                day.setDate(day.getDate() + (i - 1));
+                const dayName = daysOfWeek[dayIndex];
+                
+                const row = document.createElement('tr');
+                
+                const dayCell = document.createElement('td');
+                dayCell.className = 'border border-gray-300 px-4 py-2';
+                dayCell.textContent = dayName;
+                row.appendChild(dayCell);
+                
+                const totalCell = document.createElement('td');
+                totalCell.className = 'border border-gray-300 px-4 py-2 text-center';
+                totalCell.textContent = daysSummary[dayIndex].total;
+                row.appendChild(totalCell);
+                
+                const offCell = document.createElement('td');
+                offCell.className = 'border border-gray-300 px-4 py-2 text-center';
+                offCell.textContent = daysSummary[dayIndex].off;
+                row.appendChild(offCell);
+                
+                const workingCell = document.createElement('td');
+                workingCell.className = 'border border-gray-300 px-4 py-2 text-center';
+                workingCell.textContent = daysSummary[dayIndex].working;
+                row.appendChild(workingCell);
+                
+                summaryTableBody.appendChild(row);
+            }
+        }
+        
+        // Renderiza os gráficos
+        function renderCharts() {
+            // Destrói gráficos existentes se existirem
+            if (genderChart) genderChart.destroy();
+            if (dayOffChart) dayOffChart.destroy();
+            if (timeChart) timeChart.destroy();
+            if (weekSummaryChart) weekSummaryChart.destroy();
+            
+            if (!settings.showGraphs) return;
+            
+            // Gráfico de distribuição por gênero
+            const genderCtx = document.getElementById('genderChart').getContext('2d');
+            const maleCount = employees.filter(e => e.gender === 'male').length;
+            const femaleCount = employees.filter(e => e.gender === 'female').length;
+            
+            genderChart = new Chart(genderCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Masculino', 'Feminino'],
+                    datasets: [{
+                        data: [maleCount, femaleCount],
+                        backgroundColor: ['#3b82f6', '#ec4899'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de distribuição de dias de folga
+            const dayOffCtx = document.getElementById('dayOffChart').getContext('2d');
+            const dayOffCounts = {
+                'Nenhum': 0,
+                'Segunda': 0,
+                'Terça': 0,
+                'Quarta': 0,
+                'Quinta': 0,
+                'Sexta': 0
+            };
+            
+            employees.forEach(employee => {
+                const dayName = getDayOffName(employee.fixedDayOff);
+                dayOffCounts[dayName]++;
+            });
+            
+            dayOffChart = new Chart(dayOffCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(dayOffCounts),
+                    datasets: [{
+                        label: 'Funcionários',
+                        data: Object.values(dayOffCounts),
+                        backgroundColor: '#10b981',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de distribuição de horários
+            const timeCtx = document.getElementById('timeChart').getContext('2d');
+            const startTimes = employees.map(e => e.startTime);
+            const endTimes = employees.map(e => e.endTime);
+            
+            // Conta ocorrências de cada horário de entrada
+            const startTimeCounts = {};
+            startTimes.forEach(time => {
+                startTimeCounts[time] = (startTimeCounts[time] || 0) + 1;
+            });
+            
+            // Conta ocorrências de cada horário de saída
+            const endTimeCounts = {};
+            endTimes.forEach(time => {
+                endTimeCounts[time] = (endTimeCounts[time] || 0) + 1;
+            });
+            
+            timeChart = new Chart(timeCtx, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(startTimeCounts).sort(),
+                    datasets: [
+                        {
+                            label: 'Entrada',
+                            data: Object.keys(startTimeCounts).sort().map(time => startTimeCounts[time]),
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.1,
+                            fill: true
+                        },
+                        {
+                            label: 'Saída',
+                            data: Object.keys(endTimeCounts).sort().map(time => endTimeCounts[time]),
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.1,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de resumo semanal
+            const weekSummaryCtx = document.getElementById('weekSummaryChart').getContext('2d');
+            const daysOfWeek = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+            const workingCounts = Array(7).fill(0);
+            const offCounts = Array(7).fill(0);
+            
+            employees.forEach(employee => {
+                for (let i = 1; i <= 7; i++) {
+                    const dayIndex = i % 7;
+                    const day = new Date(currentWeekStart);
+                    day.setDate(day.getDate() + (i - 1));
+                    
+                    // Verifica se é domingo (dia 0)
+                    if (dayIndex === 0 && settings.enableSundayRule) {
+                        const status = getSundayStatus(employee, day);
+                        if (status === 'Trabalha') {
+                            workingCounts[dayIndex]++;
+                        } else {
+                            offCounts[dayIndex]++;
+                        }
+                    } else if (settings.sundayOffOnSaturday && dayIndex === 6) {
+                        const nextDay = new Date(day);
+                        nextDay.setDate(nextDay.getDate() + 1);
+                        
+                        if (nextDay.getDay() === 0 && settings.enableSundayRule) {
+                            const nextSundayStatus = getSundayStatus(employee, nextDay);
+                            
+                            if (nextSundayStatus === 'Folga') {
+                                offCounts[dayIndex]++;
+                                continue;
+                            }
+                        }
+                        
+                        if (employee.fixedDayOff && dayIndex === parseInt(employee.fixedDayOff)) {
+                            offCounts[dayIndex]++;
+                        } else {
+                            workingCounts[dayIndex]++;
+                        }
+                    } else if (employee.fixedDayOff && dayIndex === parseInt(employee.fixedDayOff)) {
+                        offCounts[dayIndex]++;
+                    } else {
+                        workingCounts[dayIndex]++;
+                    }
+                }
+            });
+            
+            weekSummaryChart = new Chart(weekSummaryCtx, {
+                type: 'bar',
+                data: {
+                    labels: daysOfWeek,
+                    datasets: [
+                        {
+                            label: 'Trabalhando',
+                            data: workingCounts,
+                            backgroundColor: '#3b82f6'
+                        },
+                        {
+                            label: 'Folga',
+                            data: offCounts,
+                            backgroundColor: '#10b981'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Gera a escala para a semana
+        function generateWeeklySchedule() {
+            // Apenas avança para a próxima semana (a escala é calculada com base na data de início)
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            renderWeeklySchedule();
+            renderCharts();
+        }
+        
+        // Obtém o domingo da semana para uma data específica
+        function getSunday(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day; // day é 0 para domingo
+            return new Date(d.setDate(diff));
+        }
+        
+        // Obtém a segunda-feira da semana atual
+        function getMonday(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1); // ajusta quando o dia é domingo
+            return new Date(d.setDate(diff));
+        }
+        
+        // Imprime a escala
+        function printWeeklySchedule() {
+            // Atualiza a escala para impressão antes de imprimir
+            updatePrintableSchedule();
+            
+            // Mostra a escala para impressão
+            printableSchedule.classList.remove('hidden');
+            
+            // Imprime
+            window.print();
+            
+            // Oculta a escala para impressão após a impressão
+            setTimeout(() => {
+                printableSchedule.classList.add('hidden');
+            }, 500);
+        }
+        
+        // Exporta dados para arquivo JSON
+        function exportDataToJson() {
+            const data = {
+                employees: employees,
+                currentWeekStart: currentWeekStart.toISOString(),
+                nextId: nextId,
+                settings: settings
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `escala-funcionarios-${new Date().toISOString().slice(0,10)}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+        
+        // Importa dados de arquivo JSON
+        function importDataFromJson(file, option) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (option === 'replace') {
+                        // Substitui todos os dados
+                        employees = data.employees || [];
+                        nextId = data.nextId || employees.length + 1;
+                        
+                        if (data.currentWeekStart) {
+                            currentWeekStart = new Date(data.currentWeekStart);
+                        }
+                        
+                        if (data.settings) {
+                            settings = data.settings;
+                            loadSettings();
+                        }
+                    } else {
+                        // Mescla com dados existentes
+                        const existingIds = employees.map(e => e.id);
+                        const newEmployees = data.employees.filter(e => !existingIds.includes(e.id));
+                        
+                        employees = [...employees, ...newEmployees];
+                        nextId = Math.max(nextId, data.nextId || 0, ...employees.map(e => e.id)) + 1;
+                    }
+                    
+                    renderEmployeeTable();
+                    renderWeeklySchedule();
+                    renderCharts();
+                    
+                    // Mostra mensagem de sucesso
+                    alert('Dados importados com sucesso!');
+                } catch (error) {
+                    console.error('Erro ao analisar arquivo JSON:', error);
+                    alert('Erro ao importar dados. O arquivo pode estar corrompido ou em formato inválido.');
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        // Salva dados no localStorage
+        function saveToLocalStorage() {
+            const data = {
+                employees: employees,
+                currentWeekStart: currentWeekStart.toISOString(),
+                nextId: nextId,
+                settings: settings
+            };
+            
+            localStorage.setItem('employeeScheduleData', JSON.stringify(data));
+        }
+        
+        // Carrega dados do localStorage
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('employeeScheduleData');
+            
+            if (savedData) {
+                try {
+                    const data = JSON.parse(savedData);
+                    
+                    employees = data.employees || [];
+                    nextId = data.nextId || employees.length + 1;
+                    
+                    if (data.currentWeekStart) {
+                        currentWeekStart = new Date(data.currentWeekStart);
+                    }
+                    
+                    if (data.settings) {
+                        settings = data.settings;
+                        loadSettings();
+                    }
+                    
+                    renderEmployeeTable();
+                    renderWeeklySchedule();
+                    renderCharts();
+                } catch (error) {
+                    console.error('Erro ao carregar dados salvos:', error);
+                }
+            }
+        }
+        
+        // Carrega configurações no formulário
+        function loadSettings() {
+            document.getElementById('enableSundayRule').checked = settings.enableSundayRule;
+            document.getElementById('menWork2Off1').checked = settings.menSundayRule === 'work2off1';
+            document.getElementById('womenAlternate').checked = settings.womenSundayRule === 'alternate';
+            document.getElementById('sundayOffOnSaturday').checked = settings.sundayOffOnSaturday;
+            document.getElementById('showCurrentDay').checked = settings.showCurrentDay;
+            document.getElementById('showGraphs').checked = settings.showGraphs;
+        }
+        
+        // Salva configurações do formulário
+        function saveSettings() {
+            settings.enableSundayRule = document.getElementById('enableSundayRule').checked;
+            settings.menSundayRule = document.getElementById('menWork2Off1').checked ? 'work2off1' : 'alternate';
+            settings.womenSundayRule = document.getElementById('womenAlternate').checked ? 'alternate' : 'work2off1';
+            settings.sundayOffOnSaturday = document.getElementById('sundayOffOnSaturday').checked;
+            settings.showCurrentDay = document.getElementById('showCurrentDay').checked;
+            settings.showGraphs = document.getElementById('showGraphs').checked;
+            
+            saveToLocalStorage();
+            renderWeeklySchedule();
+            renderCharts();
+        }
+        
+        // Adiciona múltiplos funcionários a partir de entrada de texto
+        function addMultipleEmployees() {
+            const data = multipleEmployeesData.value.trim();
+            if (!data) return;
+            
+            const lines = data.split('\n');
+            const newEmployees = [];
+            
+            lines.forEach(line => {
+                const parts = line.split(',');
+                if (parts.length >= 8) {
+                    const name = parts[0].trim();
+                    const position = parts[1].trim();
+                    const gender = parts[2].trim().toLowerCase() === 'm' ? 'male' : 'female';
+                    const fixedDayOff = parts[3].trim() || '';
+                    const startTime = parts[4].trim();
+                    const endTime = parts[5].trim();
+                    const breakOut = parts[6].trim();
+                    const breakIn = parts[7].trim();
+                    const startDate = parts[8] ? new Date(parts[8].trim()) : new Date();
+                    
+                    if (name && position && (gender === 'male' || gender === 'female') && 
+                        startTime && endTime && breakOut && breakIn) {
+                        newEmployees.push({
+                            id: nextId++,
+                            name,
+                            position,
+                            gender,
+                            fixedDayOff,
+                            startTime,
+                            breakOut,
+                            breakIn,
+                            endTime,
+                            lastSundayWorked: false,
+                            sundayCount: 0,
+                            startDate: startDate.toISOString()
+                        });
+                    }
+                }
+            });
+            
+            if (newEmployees.length > 0) {
+                employees = [...employees, ...newEmployees];
+                renderEmployeeTable();
+                renderWeeklySchedule();
+                renderCharts();
+                multipleEmployeesData.value = '';
+                addMultipleEmployeesModal.classList.add('hidden');
+                alert(`${newEmployees.length} funcionário(s) adicionado(s) com sucesso!`);
+            } else {
+                alert('Nenhum funcionário válido encontrado nos dados fornecidos.');
+            }
+        }
+        
+        // Configura os listeners de eventos
+        function setupEventListeners() {
+            // Troca de abas
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove a classe active de todas as abas e conteúdos
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Adiciona a classe active à aba clicada e ao conteúdo correspondente
+                    tab.classList.add('active');
+                    const tabId = tab.dataset.tab;
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+            
+            // Formulário de configurações
+            settingsForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveSettings();
+                alert('Configurações salvas com sucesso!');
+            });
+            
+            // Modal de adicionar funcionário
+            addEmployeeBtn.addEventListener('click', () => {
+                // Mostra opções para adicionar um ou vários
+                confirmTitle.textContent = 'Adicionar Funcionário(s)';
+                confirmMessage.innerHTML = `
+                    <div class="space-y-2">
+                        <button id="addSingleEmployee" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Adicionar um funcionário
+                        </button>
+                        <button id="addMultipleEmployees" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                            Adicionar múltiplos funcionários
+                        </button>
+                    </div>
+                `;
+                confirmModal.classList.remove('hidden');
+                
+                // Remove listeners anteriores para evitar duplicatas
+                document.getElementById('addSingleEmployee')?.removeEventListener('click', addSingleEmployeeHandler);
+                document.getElementById('addMultipleEmployees')?.removeEventListener('click', addMultipleEmployeesHandler);
+                
+                // Adiciona novos listeners
+                document.getElementById('addSingleEmployee').addEventListener('click', addSingleEmployeeHandler);
+                document.getElementById('addMultipleEmployees').addEventListener('click', addMultipleEmployeesHandler);
+            });
+            
+            function addSingleEmployeeHandler() {
+                confirmModal.classList.add('hidden');
+                addEmployeeModal.classList.remove('hidden');
+            }
+            
+            function addMultipleEmployeesHandler() {
+                confirmModal.classList.add('hidden');
+                addMultipleEmployeesModal.classList.remove('hidden');
+            }
+            
+            closeAddModal.addEventListener('click', () => {
+                addEmployeeModal.classList.add('hidden');
+            });
+            
+            cancelAddEmployee.addEventListener('click', () => {
+                addEmployeeModal.classList.add('hidden');
+            });
+            
+            // Submissão do formulário de adicionar funcionário
+            addEmployeeForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const newEmployee = {
+                    id: nextId++,
+                    name: document.getElementById('name').value,
+                    position: document.getElementById('position').value,
+                    gender: document.getElementById('gender').value,
+                    fixedDayOff: document.querySelector('input[name="fixedDayOff"]:checked').value,
+                    startTime: document.getElementById('startTime').value,
+                    breakOut: document.getElementById('breakOut').value,
+                    breakIn: document.getElementById('breakIn').value,
+                    endTime: document.getElementById('endTime').value,
+                    lastSundayWorked: false,
+                    sundayCount: 0,
+                    startDate: document.getElementById('startDate').value
+                };
+                
+                employees.push(newEmployee);
+                renderEmployeeTable();
+                renderWeeklySchedule();
+                renderCharts();
+                addEmployeeForm.reset();
+                addEmployeeModal.classList.add('hidden');
+            });
+            
+            // Modal de adicionar múltiplos funcionários
+            closeAddMultipleModal.addEventListener('click', () => {
+                addMultipleEmployeesModal.classList.add('hidden');
+            });
+            
+            cancelAddMultiple.addEventListener('click', () => {
+                addMultipleEmployeesModal.classList.add('hidden');
+            });
+            
+            confirmAddMultiple.addEventListener('click', () => {
+                addMultipleEmployees();
+            });
+            
+            // Modal de editar funcionário
+            closeEditModal.addEventListener('click', () => {
+                editEmployeeModal.classList.add('hidden');
+            });
+            
+            cancelEditEmployee.addEventListener('click', () => {
+                editEmployeeModal.classList.add('hidden');
+            });
+            
+            // Submissão do formulário de editar funcionário
+            editEmployeeForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const id = parseInt(document.getElementById('editId').value);
+                const employee = employees.find(e => e.id === id);
+                
+                if (employee) {
+                    employee.name = document.getElementById('editName').value;
+                    employee.position = document.getElementById('editPosition').value;
+                    employee.gender = document.getElementById('editGender').value;
+                    
+                    // Define o rádio do dia de folga fixo
+                    document.querySelector(`input[name="editFixedDayOff"][value="${employee.fixedDayOff}"]`).checked = true;
+                    
+                    employee.startTime = document.getElementById('editStartTime').value;
+                    employee.breakOut = document.getElementById('editBreakOut').value;
+                    employee.breakIn = document.getElementById('editBreakIn').value;
+                    employee.endTime = document.getElementById('editEndTime').value;
+                    
+                    // Define a data de início
+                    const startDate = new Date(employee.startDate);
+                    document.getElementById('editStartDate').valueAsDate = startDate;
+                    
+                    renderEmployeeTable();
+                    renderWeeklySchedule();
+                    renderCharts();
+                    editEmployeeModal.classList.add('hidden');
+                }
+            });
+            
+            // Modal de edição em massa
+            closeBulkEditModal.addEventListener('click', () => {
+                bulkEditModal.classList.add('hidden');
+            });
+            
+            cancelBulkEdit.addEventListener('click', () => {
+                bulkEditModal.classList.add('hidden');
+            });
+            
+            // Submissão do formulário de edição em massa
+            bulkEditForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const startTime = document.getElementById('bulkStartTime').value;
+                const breakOut = document.getElementById('bulkBreakOut').value;
+                const breakIn = document.getElementById('bulkBreakIn').value;
+                const endTime = document.getElementById('bulkEndTime').value;
+                
+                employees.forEach(employee => {
+                    if (selectedEmployees.includes(employee.id)) {
+                        if (startTime) employee.startTime = startTime;
+                        if (breakOut) employee.breakOut = breakOut;
+                        if (breakIn) employee.breakIn = breakIn;
+                        if (endTime) employee.endTime = endTime;
+                    }
+                });
+                
+                renderEmployeeTable();
+                renderWeeklySchedule();
+                renderCharts();
+                bulkEditModal.classList.add('hidden');
+                bulkEditForm.reset();
+            });
+            
+            // Modal de confirmação
+            closeConfirmModal.addEventListener('click', () => {
+                confirmModal.classList.add('hidden');
+            });
+            
+            cancelConfirm.addEventListener('click', () => {
+                confirmModal.classList.add('hidden');
+            });
+            
+            // Modal de opções de impressão
+            closePrintOptionsModal.addEventListener('click', () => {
+                printOptionsModal.classList.add('hidden');
+            });
+            
+            cancelPrintOptions.addEventListener('click', () => {
+                printOptionsModal.classList.add('hidden');
+            });
+            
+            // Submissão do formulário de opções de impressão
+            printOptionsForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                // Obtém os dias selecionados
+                const checkboxes = document.querySelectorAll('input[name="printDays"]:checked');
+                selectedPrintDays = Array.from(checkboxes).map(cb => parseInt(cb.value));
+                
+                // Fecha o modal e imprime
+                printOptionsModal.classList.add('hidden');
+                printWeeklySchedule();
+            });
+            
+            // Checkbox de selecionar todos
+            selectAllCheckbox.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    selectedEmployees = employees.map(employee => employee.id);
+                } else {
+                    selectedEmployees = [];
+                }
+                renderEmployeeTable();
+            });
+            
+            // Ações em massa
+            editBulkBtn.addEventListener('click', () => {
+                bulkEditCount.textContent = `Editando ${selectedEmployees.length} funcionário(s) selecionado(s)`;
+                bulkEditModal.classList.remove('hidden');
+            });
+            
+            deleteBulkBtn.addEventListener('click', () => {
+                confirmTitle.textContent = 'Excluir Funcionários';
+                confirmMessage.textContent = `Tem certeza que deseja excluir ${selectedEmployees.length} funcionário(s) selecionado(s)?`;
+                confirmModal.classList.remove('hidden');
+                
+                confirmAction.onclick = () => {
+                    employees = employees.filter(employee => !selectedEmployees.includes(employee.id));
+                    selectedEmployees = [];
+                    renderEmployeeTable();
+                    renderWeeklySchedule();
+                    renderCharts();
+                    confirmModal.classList.add('hidden');
+                };
+            });
+            
+            cancelBulkBtn.addEventListener('click', () => {
+                selectedEmployees = [];
+                renderEmployeeTable();
+            });
+            
+            // Navegação por semana
+            prevWeek.addEventListener('click', () => {
+                currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+                renderWeeklySchedule();
+                renderCharts();
+            });
+            
+            nextWeek.addEventListener('click', () => {
+                currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+                renderWeeklySchedule();
+                renderCharts();
+            });
+            
+            // Gerar escala
+            generateSchedule.addEventListener('click', () => {
+                generateWeeklySchedule();
+            });
+            
+            // Imprimir escala - mostra opções primeiro
+            printSchedule.addEventListener('click', () => {
+                printOptionsModal.classList.remove('hidden');
+            });
+            
+            // Exportar dados
+            exportData.addEventListener('click', () => {
+                exportDataToJson();
+            });
+            
+            // Importar dados
+            importData.addEventListener('click', () => {
+                importDataModal.classList.remove('hidden');
+            });
+            
+            // Fechar modal de importação
+            closeImportDataModal.addEventListener('click', () => {
+                importDataModal.classList.add('hidden');
+            });
+            
+            cancelImportData.addEventListener('click', () => {
+                importDataModal.classList.add('hidden');
+            });
+            
+            // Submissão do formulário de importação
+            importDataForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                if (importFile.files.length > 0) {
+                    const file = importFile.files[0];
+                    const option = document.querySelector('input[name="importOption"]:checked').value;
+                    
+                    importDataFromJson(file, option);
+                    importDataModal.classList.add('hidden');
+                    importDataForm.reset();
+                }
+            });
+            
+            // Eventos de busca e filtro
+            searchEmployee.addEventListener('input', () => {
+                renderEmployeeTable();
+            });
+            
+            filterGender.addEventListener('change', () => {
+                renderEmployeeTable();
+            });
+            
+            filterDayOff.addEventListener('change', () => {
+                renderEmployeeTable();
+            });
+            
+            sortEmployees.addEventListener('change', () => {
+                renderEmployeeTable();
+            });
+            
+            // Delegação de eventos para elementos dinâmicos
+            employeeTableBody.addEventListener('click', (e) => {
+                // Seleção por checkbox
+                if (e.target.closest('.checkbox-container input[type="checkbox"]')) {
+                    const checkbox = e.target.closest('.checkbox-container input[type="checkbox"]');
+                    const id = parseInt(checkbox.id.split('-')[1]);
+                    
+                    if (checkbox.checked) {
+                        if (!selectedEmployees.includes(id)) {
+                            selectedEmployees.push(id);
+                        }
+                    } else {
+                        selectedEmployees = selectedEmployees.filter(empId => empId !== id);
+                    }
+                    
+                    renderEmployeeTable();
+                }
+                
+                // Botão de editar
+                if (e.target.closest('.edit-btn')) {
+                    const id = parseInt(e.target.closest('.edit-btn').dataset.id);
+                    const employee = employees.find(e => e.id === id);
+                    
+                    if (employee) {
+                        document.getElementById('editId').value = employee.id;
+                        document.getElementById('editName').value = employee.name;
+                        document.getElementById('editPosition').value = employee.position;
+                        document.getElementById('editGender').value = employee.gender;
+                        
+                        // Define o rádio do dia de folga fixo
+                        document.querySelector(`input[name="editFixedDayOff"][value="${employee.fixedDayOff}"]`).checked = true;
+                        
+                        document.getElementById('editStartTime').value = employee.startTime;
+                        document.getElementById('editBreakOut').value = employee.breakOut;
+                        document.getElementById('editBreakIn').value = employee.breakIn;
+                        document.getElementById('editEndTime').value = employee.endTime;
+                        
+                        // Define a data de início
+                        const startDate = new Date(employee.startDate);
+                        document.getElementById('editStartDate').valueAsDate = startDate;
+                        
+                        editEmployeeModal.classList.remove('hidden');
+                    }
+                }
+                
+                // Botão de excluir
+                if (e.target.closest('.delete-btn')) {
+                    const id = parseInt(e.target.closest('.delete-btn').dataset.id);
+                    const employee = employees.find(e => e.id === id);
+                    
+                    if (employee) {
+                        confirmTitle.textContent = 'Excluir Funcionário';
+                        confirmMessage.textContent = `Tem certeza que deseja excluir ${employee.name}?`;
+                        confirmModal.classList.remove('hidden');
+                        
+                        confirmAction.onclick = () => {
+                            employees = employees.filter(e => e.id !== id);
+                            selectedEmployees = selectedEmployees.filter(empId => empId !== id);
+                            renderEmployeeTable();
+                            renderWeeklySchedule();
+                            renderCharts();
+                            confirmModal.classList.add('hidden');
+                        };
+                    }
+                }
+            });
+        }
+        
+    // Atualiza a escala para impressão - FUNÇÃO MODIFIpCADA
+function updatePrintableSchedule() {
+    const printDaysContainer = document.getElementById('printDaysContainer');
+    printDaysContainer.innerHTML = '';
+    
+    // Formata a exibição da semana para impressão
+    const weekEnd = new Date(currentWeekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    printWeekRange.textContent = `Semana de ${currentWeekStart.toLocaleDateString('pt-BR', options)} a ${weekEnd.toLocaleDateString('pt-BR', options)}`;
+    
+    const daysOfWeek = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+    
+    // Cria uma seção para cada dia da semana
+    for (let i = 0; i < 7; i++) {
+        const dayIndex = i; // 0=Dom, 1=Seg, ..., 6=Sáb
+        if (!selectedPrintDays.includes(dayIndex)) continue;
+        
+        const day = new Date(currentWeekStart);
+        day.setDate(day.getDate() + i);
+        
+        const daySection = document.createElement('div');
+        daySection.className = 'print-day-section';
+        
+        // Cabeçalho do dia
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'header-print';
+        dayHeader.innerHTML = `
+            <h2 class="text-2xl font-bold">${daysOfWeek[dayIndex]}</h2>
+            <p class="text-lg">${day.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+        `;
+        daySection.appendChild(dayHeader);
+        
+        // Tabela 1: Funcionários trabalhando
+        const table1Header = document.createElement('div');
+        table1Header.className = 'table-number';
+        table1Header.textContent = '1. Funcionários Trabalhando:';
+        daySection.appendChild(table1Header);
+        
+        const workingTable = document.createElement('table');
+        workingTable.className = 'min-w-full border border-gray-300 mb-8';
+        workingTable.innerHTML = `
+            <thead>
+                <tr>
+                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">#</th>
+                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">Funcionário</th>
+                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">Cargo</th>
+                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">Horário</th>
+                    <th class="border border-gray-300 px-4 py-2 bg-gray-100 caixa-column">1º Turno</th>
+                    <th class="border border-gray-300 px-4 py-2 bg-gray-100 caixa-column">2º Turno</th>
+                    <th class="border border-gray-300 px-4 py-2 bg-gray-100 obs-column">Obs</th>
+                </tr>
+            </thead>
+            <tbody id="workingTableBody-${dayIndex}"></tbody>
+        `;
+        daySection.appendChild(workingTable);
+        
+        // Tabela 2: Funcionários em folga
+        const table2Header = document.createElement('div');
+        table2Header.className = 'table-number';
+        table2Header.textContent = '2. Funcionários em Folga:';
+        daySection.appendChild(table2Header);
+        
+        const offTable = document.createElement('table');
+        offTable.className = 'min-w-full border border-gray-300 mb-8';
+        offTable.innerHTML = `
+            <thead>
+                <tr>
+                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">#</th>
+                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">Funcionário</th>
+                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">Cargo</th>
+                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">Motivo</th>
+                </tr>
+            </thead>
+            <tbody id="offTableBody-${dayIndex}"></tbody>
+        `;
+        daySection.appendChild(offTable);
+        
+        printDaysContainer.appendChild(daySection);
+        
+        // Preenche as tabelas para este dia
+        fillDayTables(dayIndex, day);
+    }
+}
+
+// Preenche as tabelas de trabalho e folga para um dia específico
+function fillDayTables(dayIndex, day) {
+    const workingTableBody = document.getElementById(`workingTableBody-${dayIndex}`);
+    const offTableBody = document.getElementById(`offTableBody-${dayIndex}`);
+    
+    workingTableBody.innerHTML = '';
+    offTableBody.innerHTML = '';
+    
+    let workingCount = 0;
+    let offCount = 0;
+    
+    employees.forEach((employee, index) => {
+        let dayStatus = '';
+        let reason = '';
+        
+        // DOMINGO (diaIndex 0)
+        if (dayIndex === 0) {
+            if (settings.enableSundayRule) {
+                const status = getSundayStatus(employee, day);
+                dayStatus = status;
+                reason = status === 'Trabalha' ? '' : 'Folga dominical';
+            } else {
+                if (employee.fixedDayOff && dayIndex.toString() === employee.fixedDayOff) {
+                    dayStatus = 'Folga';
+                    reason = 'Folga semanal';
+                } else {
+                    dayStatus = 'Trabalha';
+                }
+            }
+        } 
+        // SÁBADO (diaIndex 6) com folga antecipada para domingo
+        else if (dayIndex === 6 && settings.sundayOffOnSaturday) {
+            const nextDay = new Date(day);
+            nextDay.setDate(nextDay.getDate() + 1);
+            
+            if (nextDay.getDay() === 0 && settings.enableSundayRule) {
+                const nextSundayStatus = getSundayStatus(employee, nextDay);
+                if (nextSundayStatus === 'Folga') {
+                    dayStatus = 'Folga';
+                    reason = 'Folga dominical no sábado';
+                }
+            }
+            
+            if (!dayStatus) {
+                if (employee.fixedDayOff && dayIndex.toString() === employee.fixedDayOff) {
+                    dayStatus = 'Folga';
+                    reason = 'Folga semanal';
+                } else {
+                    dayStatus = 'Trabalha';
+                }
+            }
+        } 
+        // DIA NORMAL (segunda a sexta)
+        else {
+            if (employee.fixedDayOff && dayIndex.toString() === employee.fixedDayOff) {
+                dayStatus = 'Folga';
+                reason = 'Folga semanal';
+            } else {
+                dayStatus = 'Trabalha';
+            }
+        }
+        
+        const row = document.createElement('tr');
+        
+        if (dayStatus === 'Trabalha') {
+            workingCount++;
+            row.innerHTML = `
+                <td class="border border-gray-300 px-4 py-2 text-center">${workingCount}</td>
+                <td class="border border-gray-300 px-4 py-2">${employee.name}</td>
+                <td class="border border-gray-300 px-4 py-2">${employee.position}</td>
+                <td class="border border-gray-300 px-4 py-2 text-center">${employee.startTime} - ${employee.endTime}</td>
+                <td class="border border-gray-300 px-4 py-2 text-center caixa-column">_____</td>
+                <td class="border border-gray-300 px-4 py-2 text-center caixa-column">_____</td>
+                <td class="border border-gray-300 px-4 py-2 text-center obs-column">__________</td>
+            `;
+            workingTableBody.appendChild(row);
+        } else {
+            offCount++;
+            row.innerHTML = `
+                <td class="border border-gray-300 px-4 py-2 text-center">${offCount}</td>
+                <td class="border border-gray-300 px-4 py-2">${employee.name}</td>
+                <td class="border border-gray-300 px-4 py-2">${employee.position}</td>
+                <td class="border border-gray-300 px-4 py-2">${reason}</td>
+            `;
+            offTableBody.appendChild(row);
+        }
+    });
+    
+    if (workingCount === 0) {
+        workingTableBody.innerHTML = `
+            <tr>
+                <td colspan="7" class="border border-gray-300 px-4 py-2 text-center">Nenhum funcionário trabalhando neste dia</td>
+            </tr>
+        `;
+    }
+    
+    if (offCount === 0) {
+        offTableBody.innerHTML = `
+            <tr>
+                <td colspan="4" class="border border-gray-300 px-4 py-2 text-center">Nenhum funcionário de folga neste dia</td>
+            </tr>
+        `;
+    }
+}
+
+        // Inicializa o aplicativo
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
