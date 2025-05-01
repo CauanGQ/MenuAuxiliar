@@ -10,7 +10,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1725283356900247"
      crossorigin="anonymous"></script>
-    <style>
+     <style>
+        /* Estilos gerais */
         .fade-in {
             animation: fadeIn 0.3s ease-in-out;
         }
@@ -91,72 +92,14 @@
             margin-bottom: 2rem;
         }
         
-        /* Estilos para as novas colunas */
-.caixa-column {
-    width: 80px;
-    border-left: 1px dashed #ccc !important;
-}
-
-.obs-column {
-    width: 120px;
-}
-
-@media print {
-    .caixa-column {
-        background-color: #f9f9f9;
-    }
-}
-
-        @media print {
-    body * {
-        visibility: hidden;
-    }
-    .print-day-section, .print-day-section * {
-        visibility: visible;
-    }
-    .print-day-section {
-        page-break-after: always;
-        position: relative;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: auto;
-        background-color: white;
-        z-index: 9999;
-        padding: 20px;
-    }
-    .print-day-section:last-child {
-        page-break-after: auto;
-    }
-    .no-print {
-        display: none !important;
-    }
-    .grafico-container {
-        display: none !important;
-    }
-    .hidden-print {
-        display: none !important;
-    }
-    .show-print {
-        display: table-cell !important;
-    }
-    .folga-print {
-        background-color: #f0fdf4 !important;
-        color: #16a34a !important;
-    }
-    .trabalho-print {
-        background-color: #eff6ff !important;
-        color: #1d4ed8 !important;
-    }
-    .header-print {
-        margin-bottom: 20px;
-        text-align: center;
-    }
-    .table-number {
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-}
+        .caixa-column {
+            width: 80px;
+            border-left: 1px dashed #ccc !important;
+        }
+        
+        .obs-column {
+            width: 120px;
+        }
         
         .tab-content {
             display: none;
@@ -181,6 +124,121 @@
         
         .hidden-print {
             display: none;
+        }
+    
+        /* Estilos de impressão otimizados */
+        @media print {
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+                font-size: 9pt !important;
+                line-height: 1.1 !important;
+                background: white !important;
+                color: black !important;
+            }
+            
+            #printableSchedule {
+                display: block !important;
+                width: 100% !important;
+                height: auto !important;
+                padding: 5mm !important;
+            }
+            
+            .print-day-section {
+                page-break-inside: avoid;
+                margin-bottom: 5px !important;
+            }
+            
+            h1, h2, h3, h4 {
+                margin: 2px 0 !important;
+                padding: 0 !important;
+                font-size: 1.2em !important;
+            }
+            
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                margin: 2px 0 !important;
+                font-size: 8pt !important;
+                page-break-inside: avoid !important;
+            }
+            
+            th, td {
+                padding: 2px 3px !important;
+                border: 1px solid #ddd !important;
+            }
+            
+            th {
+                background-color: #f2f2f2 !important;
+                font-weight: bold !important;
+            }
+            
+            .header-print {
+                margin-bottom: 3px !important;
+                text-align: center !important;
+            }
+            
+            .table-number {
+                font-weight: bold !important;
+                margin: 3px 0 !important;
+                font-size: 9pt !important;
+            }
+            
+            .caixa-column {
+                width: 25px !important;
+                min-width: 25px !important;
+                max-width: 25px !important;
+            }
+            
+            .obs-column {
+                width: 40px !important;
+                min-width: 40px !important;
+                max-width: 40px !important;
+            }
+            
+            /* Ocultar elementos não essenciais */
+            .no-print, 
+            .hidden-print, 
+            .grafico-container, 
+            .tab-button, 
+            .tab-content:not(.active),
+            #bulkActions,
+            #employeeTableBody .actions,
+            #scheduleTableBody .hidden-print {
+                display: none !important;
+            }
+            
+            /* Otimização de conteúdo */
+            .print-day-section h3 {
+                font-size: 10pt !important;
+            }
+            
+            td {
+                word-break: break-word;
+            }
+            
+            /* Redução de espaçamento */
+            .px-6 {
+                padding-left: 4px !important;
+                padding-right: 4px !important;
+            }
+            
+            .py-4 {
+                padding-top: 2px !important;
+                padding-bottom: 2px !important;
+            }
+            
+            /* Ajuste para caber em uma página */
+            @page {
+                size: A4;
+                margin: 5mm;
+            }
+            
+            body.print-mode {
+                transform: scale(0.95);
+                transform-origin: top left;
+                width: 105%;
+            }
         }
     </style>
 </head>
@@ -1832,20 +1890,42 @@
         
         // Imprime a escala
         function printWeeklySchedule() {
-            // Atualiza a escala para impressão antes de imprimir
-            updatePrintableSchedule();
-            
-            // Mostra a escala para impressão
-            printableSchedule.classList.remove('hidden');
-            
-            // Imprime
-            window.print();
-            
-            // Oculta a escala para impressão após a impressão
-            setTimeout(() => {
-                printableSchedule.classList.add('hidden');
-            }, 500);
+    // Atualiza a escala para impressão antes de imprimir
+    updatePrintableSchedule();
+    
+    // Mostra a escala para impressão
+    printableSchedule.classList.remove('hidden');
+    
+    // Aplica estilos específicos para impressão compacta
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @page {
+            size: A4;
+            margin: 5mm;
         }
+        body {
+            transform: scale(0.95);
+            transform-origin: top left;
+            width: 105%;
+        }
+        .print-day-section {
+            margin-bottom: 2px;
+        }
+        table {
+            page-break-inside: avoid;
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Imprime
+    window.print();
+    
+    // Limpa após impressão
+    setTimeout(() => {
+        printableSchedule.classList.add('hidden');
+        document.head.removeChild(style);
+    }, 500);
+}
         
         // Exporta dados para arquivo JSON
         function exportDataToJson() {
@@ -2420,22 +2500,22 @@
         }
         
     // Atualiza a escala para impressão - FUNÇÃO MODIFIpCADA
-function updatePrintableSchedule() {
+    function updatePrintableSchedule() {
     const printDaysContainer = document.getElementById('printDaysContainer');
     printDaysContainer.innerHTML = '';
     
-    // Formata a exibição da semana para impressão
+    // Formata a exibição da semana
     const weekEnd = new Date(currentWeekStart);
     weekEnd.setDate(weekEnd.getDate() + 6);
     
-    const options = { day: 'numeric', month: 'long', year: 'numeric' };
-    printWeekRange.textContent = `Semana de ${currentWeekStart.toLocaleDateString('pt-BR', options)} a ${weekEnd.toLocaleDateString('pt-BR', options)}`;
+    const options = { day: 'numeric', month: 'short' }; // Formato mais curto
+    printWeekRange.textContent = `Semana: ${currentWeekStart.toLocaleDateString('pt-BR', options)} a ${weekEnd.toLocaleDateString('pt-BR', options)}`;
     
-    const daysOfWeek = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+    const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']; // Nomes curtos
     
     // Cria uma seção para cada dia da semana
     for (let i = 0; i < 7; i++) {
-        const dayIndex = i; // 0=Dom, 1=Seg, ..., 6=Sáb
+        const dayIndex = i;
         if (!selectedPrintDays.includes(dayIndex)) continue;
         
         const day = new Date(currentWeekStart);
@@ -2444,54 +2524,43 @@ function updatePrintableSchedule() {
         const daySection = document.createElement('div');
         daySection.className = 'print-day-section';
         
-        // Cabeçalho do dia
+        // Cabeçalho compacto do dia
         const dayHeader = document.createElement('div');
         dayHeader.className = 'header-print';
         dayHeader.innerHTML = `
-            <h2 class="text-2xl font-bold">${daysOfWeek[dayIndex]}</h2>
-            <p class="text-lg">${day.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            <h3 style="font-size: 11pt; margin: 2px 0;">${daysOfWeek[dayIndex]} - ${day.toLocaleDateString('pt-BR', { day: 'numeric', month: 'numeric' })}</h3>
         `;
         daySection.appendChild(dayHeader);
         
-        // Tabela 1: Funcionários trabalhando
-        const table1Header = document.createElement('div');
-        table1Header.className = 'table-number';
-        table1Header.textContent = '1. Funcionários Trabalhando:';
-        daySection.appendChild(table1Header);
-        
+        // Tabela compacta de funcionários trabalhando
         const workingTable = document.createElement('table');
-        workingTable.className = 'min-w-full border border-gray-300 mb-8';
+        workingTable.className = 'compact-table';
         workingTable.innerHTML = `
             <thead>
                 <tr>
-                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">#</th>
-                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">Funcionário</th>
-                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">Cargo</th>
-                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">Horário</th>
-                    <th class="border border-gray-300 px-4 py-2 bg-gray-100 caixa-column">1º Turno</th>
-                    <th class="border border-gray-300 px-4 py-2 bg-gray-100 caixa-column">2º Turno</th>
-                    <th class="border border-gray-300 px-4 py-2 bg-gray-100 obs-column">Obs</th>
+                    <th width="5%">#</th>
+                    <th width="35%">Funcionário</th>
+                    <th width="20%">Cargo</th>
+                    <th width="15%">Horário</th>
+                    <th width="10%" class="caixa-column">1º</th>
+                    <th width="10%" class="caixa-column">2º</th>
+                    <th width="5%" class="obs-column">Obs</th>
                 </tr>
             </thead>
             <tbody id="workingTableBody-${dayIndex}"></tbody>
         `;
         daySection.appendChild(workingTable);
         
-        // Tabela 2: Funcionários em folga
-        const table2Header = document.createElement('div');
-        table2Header.className = 'table-number';
-        table2Header.textContent = '2. Funcionários em Folga:';
-        daySection.appendChild(table2Header);
-        
+        // Tabela compacta de funcionários em folga (só se houver)
         const offTable = document.createElement('table');
-        offTable.className = 'min-w-full border border-gray-300 mb-8';
+        offTable.className = 'compact-table';
         offTable.innerHTML = `
             <thead>
                 <tr>
-                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">#</th>
-                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">Funcionário</th>
-                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">Cargo</th>
-                    <th class="border border-gray-300 px-4 py-2 bg-gray-100">Motivo</th>
+                    <th width="5%">#</th>
+                    <th width="45%">Funcionário</th>
+                    <th width="30%">Cargo</th>
+                    <th width="20%">Motivo</th>
                 </tr>
             </thead>
             <tbody id="offTableBody-${dayIndex}"></tbody>
@@ -2520,7 +2589,7 @@ function fillDayTables(dayIndex, day) {
         let dayStatus = '';
         let reason = '';
         
-        // DOMINGO (diaIndex 0)
+        // Lógica para determinar status (mantida igual à original)
         if (dayIndex === 0) {
             if (settings.enableSundayRule) {
                 const status = getSundayStatus(employee, day);
@@ -2534,9 +2603,7 @@ function fillDayTables(dayIndex, day) {
                     dayStatus = 'Trabalha';
                 }
             }
-        } 
-        // SÁBADO (diaIndex 6) com folga antecipada para domingo
-        else if (dayIndex === 6 && settings.sundayOffOnSaturday) {
+        } else if (dayIndex === 6 && settings.sundayOffOnSaturday) {
             const nextDay = new Date(day);
             nextDay.setDate(nextDay.getDate() + 1);
             
@@ -2556,9 +2623,7 @@ function fillDayTables(dayIndex, day) {
                     dayStatus = 'Trabalha';
                 }
             }
-        } 
-        // DIA NORMAL (segunda a sexta)
-        else {
+        } else {
             if (employee.fixedDayOff && dayIndex.toString() === employee.fixedDayOff) {
                 dayStatus = 'Folga';
                 reason = 'Folga semanal';
@@ -2572,41 +2637,33 @@ function fillDayTables(dayIndex, day) {
         if (dayStatus === 'Trabalha') {
             workingCount++;
             row.innerHTML = `
-                <td class="border border-gray-300 px-4 py-2 text-center">${workingCount}</td>
-                <td class="border border-gray-300 px-4 py-2">${employee.name}</td>
-                <td class="border border-gray-300 px-4 py-2">${employee.position}</td>
-                <td class="border border-gray-300 px-4 py-2 text-center">${employee.startTime} - ${employee.endTime}</td>
-                <td class="border border-gray-300 px-4 py-2 text-center caixa-column">_____</td>
-                <td class="border border-gray-300 px-4 py-2 text-center caixa-column">_____</td>
-                <td class="border border-gray-300 px-4 py-2 text-center obs-column">__________</td>
+                <td>${workingCount}</td>
+                <td>${employee.name.split(' ')[0]}</td>
+                <td>${employee.position.substring(0, 15)}</td>
+                <td>${employee.startTime}-${employee.endTime}</td>
+                <td class="caixa-column">_</td>
+                <td class="caixa-column">_</td>
+                <td class="obs-column"></td>
             `;
             workingTableBody.appendChild(row);
         } else {
             offCount++;
             row.innerHTML = `
-                <td class="border border-gray-300 px-4 py-2 text-center">${offCount}</td>
-                <td class="border border-gray-300 px-4 py-2">${employee.name}</td>
-                <td class="border border-gray-300 px-4 py-2">${employee.position}</td>
-                <td class="border border-gray-300 px-4 py-2">${reason}</td>
+                <td>${offCount}</td>
+                <td>${employee.name.split(' ')[0]}</td>
+                <td>${employee.position.substring(0, 15)}</td>
+                <td>${reason.substring(0, 10)}</td>
             `;
             offTableBody.appendChild(row);
         }
     });
     
     if (workingCount === 0) {
-        workingTableBody.innerHTML = `
-            <tr>
-                <td colspan="7" class="border border-gray-300 px-4 py-2 text-center">Nenhum funcionário trabalhando neste dia</td>
-            </tr>
-        `;
+        workingTableBody.innerHTML = '<tr><td colspan="7">Nenhum funcionário</td></tr>';
     }
     
     if (offCount === 0) {
-        offTableBody.innerHTML = `
-            <tr>
-                <td colspan="4" class="border border-gray-300 px-4 py-2 text-center">Nenhum funcionário de folga neste dia</td>
-            </tr>
-        `;
+        offTableBody.style.display = 'none';
     }
 }
 
