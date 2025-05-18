@@ -8,9 +8,7 @@
     <link rel="icon" type="image/png" href="/Menu-Icon.webp" sizes="32x32">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1725283356900247"
-     crossorigin="anonymous"></script>
-     <style>
+    <style>
         /* Estilos gerais */
         .fade-in {
             animation: fadeIn 0.3s ease-in-out;
@@ -394,17 +392,16 @@
             
             <!-- Printable Schedule (hidden until print) -->
             <div id="printableSchedule" class="hidden">
-    <div class="p-8">
-        <h1 class="text-3xl font-bold text-center mb-6">Escala Semanal por Dia</h1>
-        <div class="text-center mb-8">
-            <p id="printWeekRange" class="text-xl font-medium"></p>
-        </div>
-        
-        <!-- As tabelas por dia serão inseridas aqui dinamicamente -->
-        <div id="printDaysContainer"></div>
-    </div>
-</div>            
-            </div>
+                <div class="p-4">
+                    <h1 class="text-xl font-bold text-center mb-2">Escala Semanal por Dia</h1>
+                    <div class="text-center mb-4">
+                        <p id="printWeekRange" class="text-lg font-medium"></p>
+                    </div>
+                    
+                    <!-- As tabelas por dia serão inseridas aqui dinamicamente -->
+                    <div id="printDaysContainer"></div>
+                </div>
+            </div>            
         </div>
         
         <div class="tab-content" id="funcionarios-tab">
@@ -993,7 +990,7 @@
         ];
         
         let selectedEmployees = [];
-        let nextId = 5;
+        let nextId = 1;
         let currentWeekStart = getMonday(new Date());
         let selectedPrintDays = [0, 1, 2, 3, 4, 5, 6]; // Todos os dias selecionados por padrão
         
@@ -1055,9 +1052,7 @@
         const printOptionsForm = document.getElementById('printOptionsForm');
         const printableSchedule = document.getElementById('printableSchedule');
         const printWeekRange = document.getElementById('printWeekRange');
-        const printScheduleBody = document.getElementById('printScheduleBody');
-        const printOffScheduleBody = document.getElementById('printOffScheduleBody');
-        const summaryTableBody = document.getElementById('summaryTableBody');
+        const printDaysContainer = document.getElementById('printDaysContainer');
         const exportData = document.getElementById('exportData');
         const importData = document.getElementById('importData');
         const importDataModal = document.getElementById('importDataModal');
@@ -1217,21 +1212,21 @@
         
         // Obtém o status do domingo para um funcionário
         function getSundayStatus(employee, date) {
-            const employeeStartDate = new Date(employee.startDate);
-            const employeeSunday = getSunday(employeeStartDate);
-            
-            // Calcula a diferença em semanas entre a data atual e a data de início do funcionário
-            const diffInMs = date - employeeSunday;
-            const diffInWeeks = Math.floor(diffInMs / (7 * 24 * 60 * 60 * 1000));
-            
-            if (employee.gender === 'female') {
-                // Mulheres: folgam domingos alternados
-                return diffInWeeks % 2 === 0 ? 'Trabalha' : 'Folga';
-            } else {
-                // Homens: trabalham 2 domingos, folgam 1
-                return diffInWeeks % 3 !== 2 ? 'Trabalha' : 'Folga';
-            }
-        }
+    const employeeStartDate = new Date(employee.startDate);
+    const employeeSunday = getSunday(employeeStartDate);
+    
+    // Calcula a diferença em semanas entre a data atual e a data de início do funcionário
+    const diffInMs = date - employeeSunday;
+    const diffInWeeks = Math.floor(diffInMs / (7 * 24 * 60 * 60 * 1000));
+    
+    if (employee.gender === 'female') {
+        // Mulheres: folgam domingos alternados começando no domingo inicial
+        return diffInWeeks % 2 === 0 ? 'Folga' : 'Trabalha';
+    } else {
+        // Homens: trabalham 2 domingos e folgam 1, começando com folga no domingo inicial
+        return diffInWeeks % 3 === 0 ? 'Folga' : 'Trabalha';
+    }
+}
         
         // Renderiza a escala semanal
         function renderWeeklySchedule() {
@@ -1354,300 +1349,168 @@
         
         // Atualiza a escala para impressão
         function updatePrintableSchedule() {
-            printScheduleBody.innerHTML = '';
-            printOffScheduleBody.innerHTML = '';
-            summaryTableBody.innerHTML = '';
+            printDaysContainer.innerHTML = '';
             
-            // Formata a exibição da semana para impressão
+            // Formata a exibição da semana
             const weekEnd = new Date(currentWeekStart);
             weekEnd.setDate(weekEnd.getDate() + 6);
             
-            const options = { day: 'numeric', month: 'long', year: 'numeric' };
-            printWeekRange.textContent = `Semana de ${currentWeekStart.toLocaleDateString('pt-BR', options)} a ${weekEnd.toLocaleDateString('pt-BR', options)}`;
+            const options = { day: 'numeric', month: 'short' }; // Formato mais curto
+            printWeekRange.textContent = `Semana: ${currentWeekStart.toLocaleDateString('pt-BR', options)} a ${weekEnd.toLocaleDateString('pt-BR', options)}`;
             
-            // Oculta/mostra colunas de dias com base na seleção
-            const dayHeaders = [
-                document.getElementById('printDay1Header'),
-                document.getElementById('printDay2Header'),
-                document.getElementById('printDay3Header'),
-                document.getElementById('printDay4Header'),
-                document.getElementById('printDay5Header'),
-                document.getElementById('printDay6Header'),
-                document.getElementById('printDay7Header')
-            ];
+            const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']; // Nomes curtos
             
-            const daysOfWeek = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
-            
-            // Atualiza a visibilidade dos cabeçalhos dos dias
+            // Cria uma seção para cada dia da semana
             for (let i = 0; i < 7; i++) {
-                if (selectedPrintDays.includes(i)) {
-                    dayHeaders[i].style.display = 'table-cell';
-                    dayHeaders[i].textContent = daysOfWeek[i];
-                } else {
-                    dayHeaders[i].style.display = 'none';
-                }
-            }
-            
-            // Cria linhas da escala para impressão para funcionários trabalhando
-            employees.forEach(employee => {
-                const row = document.createElement('tr');
-                
-                // Célula do nome do funcionário
-                const nameCell = document.createElement('td');
-                nameCell.className = 'border border-gray-300 px-4 py-2';
-                nameCell.textContent = `${employee.name} (${employee.position})`;
-                row.appendChild(nameCell);
-                
-                // Célula de Horário (igual para todos os dias)
-                const scheduleCell = document.createElement('td');
-                scheduleCell.className = 'border border-gray-300 px-4 py-2 text-center';
-                scheduleCell.textContent = `${employee.startTime} - ${employee.breakOut} / ${employee.breakIn} - ${employee.endTime}`;
-                row.appendChild(scheduleCell);
-                
-                // Cria células para cada dia da semana (começando na segunda-feira)
-                for (let i = 1; i <= 7; i++) {
-                    const dayIndex = i % 7; // 1=Seg, 2=Ter, ..., 6=Sáb, 0=Dom
-                    if (!selectedPrintDays.includes(dayIndex)) continue;
-                    
-                    const day = new Date(currentWeekStart);
-                    day.setDate(day.getDate() + (i - 1));
-                    
-                    // Célula principal do dia
-                    const dayCell = document.createElement('td');
-                    dayCell.className = 'border border-gray-300 px-4 py-2 text-center';
-                    
-                    let dayStatus = '';
-                    let dayClass = '';
-                    
-                    // Verifica se é domingo (dia 0)
-                    if (dayIndex === 0 && settings.enableSundayRule) {
-                        const status = getSundayStatus(employee, day);
-                        dayStatus = status;
-                        dayClass = status === 'Trabalha' ? ' trabalho' : ' folga-print';
-                    } else if (settings.sundayOffOnSaturday && dayIndex === 6) {
-                        // Verifica se o próximo dia é domingo e o funcionário tem folga no domingo
-                        const nextDay = new Date(day);
-                        nextDay.setDate(nextDay.getDate() + 1);
-                        
-                        if (nextDay.getDay() === 0 && settings.enableSundayRule) {
-                            const nextSundayStatus = getSundayStatus(employee, nextDay);
-                            
-                            if (nextSundayStatus === 'Folga') {
-                                dayStatus = 'Folga (Dom)';
-                                dayClass = ' domingo-folga folga-print';
-                            }
-                        }
-                        
-                        if (!dayStatus) {
-                            // Sábado normal
-                            if (employee.fixedDayOff && dayIndex === parseInt(employee.fixedDayOff)) {
-                                dayStatus = 'Folga';
-                                dayClass = ' folga-print';
-                            } else {
-                                dayStatus = 'Trabalha';
-                                dayClass = ' trabalho';
-                            }
-                        }
-                    } else if (employee.fixedDayOff && dayIndex === parseInt(employee.fixedDayOff)) {
-                        // Dia de folga fixo
-                        dayStatus = 'Folga';
-                        dayClass = ' folga-print';
-                    } else {
-                        // Dia normal de trabalho
-                        dayStatus = 'Trabalha';
-                        dayClass = ' trabalho';
-                    }
-                    
-                    dayCell.textContent = dayStatus;
-                    dayCell.className += dayClass;
-                    row.appendChild(dayCell);
-                    
-                    // Adiciona células vazias para 1º Turno, 2º Turno e Obs (visíveis na impressão)
-                    const turno1Cell = document.createElement('td');
-                    turno1Cell.className = 'border border-gray-300 px-4 py-2 text-center show-print';
-                    turno1Cell.textContent = ''; // Sempre vazio para o primeiro turno
-                    row.appendChild(turno1Cell);
-                    
-                    const turno2Cell = document.createElement('td');
-                    turno2Cell.className = 'border border-gray-300 px-4 py-2 text-center show-print';
-                    turno2Cell.textContent = ''; // Sempre vazio para o segundo turno
-                    row.appendChild(turno2Cell);
-                    
-                    const obsCell = document.createElement('td');
-                    obsCell.className = 'border border-gray-300 px-4 py-2 text-center show-print';
-                    obsCell.textContent = ''; // Sempre vazio para observações
-                    row.appendChild(obsCell);
-                }
-                
-                printScheduleBody.appendChild(row);
-            });
-            
-            // Cria linhas da escala para impressão para funcionários em folga
-            employees.forEach(employee => {
-                const row = document.createElement('tr');
-                
-                // Célula do nome do funcionário
-                const nameCell = document.createElement('td');
-                nameCell.className = 'border border-gray-300 px-4 py-2';
-                nameCell.textContent = `${employee.name} (${employee.position})`;
-                row.appendChild(nameCell);
-                
-                // Célula de Horário (igual para todos os dias)
-                const scheduleCell = document.createElement('td');
-                scheduleCell.className = 'border border-gray-300 px-4 py-2 text-center';
-                scheduleCell.textContent = `${employee.startTime} - ${employee.breakOut} / ${employee.breakIn} - ${employee.endTime}`;
-                row.appendChild(scheduleCell);
-                
-                // Cria células para cada dia da semana (começando na segunda-feira)
-                for (let i = 1; i <= 7; i++) {
-                    const dayIndex = i % 7; // 1=Seg, 2=Ter, ..., 6=Sáb, 0=Dom
-                    if (!selectedPrintDays.includes(dayIndex)) continue;
-                    
-                    const day = new Date(currentWeekStart);
-                    day.setDate(day.getDate() + (i - 1));
-                    
-                    // Célula principal do dia
-                    const dayCell = document.createElement('td');
-                    dayCell.className = 'border border-gray-300 px-4 py-2 text-center';
-                    
-                    let dayStatus = '';
-                    let dayClass = '';
-                    
-                    // Verifica se é domingo (dia 0)
-                    if (dayIndex === 0 && settings.enableSundayRule) {
-                        const status = getSundayStatus(employee, day);
-                        dayStatus = status;
-                        dayClass = status === 'Trabalha' ? ' trabalho' : ' folga-print';
-                    } else if (settings.sundayOffOnSaturday && dayIndex === 6) {
-                        // Verifica se o próximo dia é domingo e o funcionário tem folga no domingo
-                        const nextDay = new Date(day);
-                        nextDay.setDate(nextDay.getDate() + 1);
-                        
-                        if (nextDay.getDay() === 0 && settings.enableSundayRule) {
-                            const nextSundayStatus = getSundayStatus(employee, nextDay);
-                            
-                            if (nextSundayStatus === 'Folga') {
-                                dayStatus = 'Folga (Dom)';
-                                dayClass = ' domingo-folga folga-print';
-                            }
-                        }
-                        
-                        if (!dayStatus) {
-                            // Sábado normal
-                            if (employee.fixedDayOff && dayIndex === parseInt(employee.fixedDayOff)) {
-                                dayStatus = 'Folga';
-                                dayClass = ' folga-print';
-                            } else {
-                                dayStatus = 'Trabalha';
-                                dayClass = ' trabalho';
-                            }
-                        }
-                    } else if (employee.fixedDayOff && dayIndex === parseInt(employee.fixedDayOff)) {
-                        // Dia de folga fixo
-                        dayStatus = 'Folga';
-                        dayClass = ' folga-print';
-                    } else {
-                        // Dia normal de trabalho
-                        dayStatus = 'Trabalha';
-                        dayClass = ' trabalho';
-                    }
-                    
-                    // Mostra apenas se for um dia de folga
-                    if (dayStatus.includes('Folga')) {
-                        dayCell.textContent = dayStatus;
-                        dayCell.className += ' folga-print';
-                    } else {
-                        dayCell.textContent = '';
-                    }
-                    row.appendChild(dayCell);
-                }
-                
-                // Adiciona apenas se houver dias de folga
-                if (row.querySelector('.folga-print')) {
-                    printOffScheduleBody.appendChild(row);
-                }
-            });
-            
-            // Cria tabela de resumo
-            const daysSummary = Array(7).fill().map(() => ({ total: 0, working: 0, off: 0 }));
-            
-            // Calcula o resumo para cada dia
-            employees.forEach(employee => {
-                for (let i = 1; i <= 7; i++) {
-                    const dayIndex = i % 7;
-                    if (!selectedPrintDays.includes(dayIndex)) continue;
-                    
-                    const day = new Date(currentWeekStart);
-                    day.setDate(day.getDate() + (i - 1));
-                    
-                    daysSummary[dayIndex].total++;
-                    
-                    // Verifica se é domingo (dia 0)
-                    if (dayIndex === 0 && settings.enableSundayRule) {
-                        const status = getSundayStatus(employee, day);
-                        if (status === 'Trabalha') {
-                            daysSummary[dayIndex].working++;
-                        } else {
-                            daysSummary[dayIndex].off++;
-                        }
-                    } else if (settings.sundayOffOnSaturday && dayIndex === 6) {
-                        const nextDay = new Date(day);
-                        nextDay.setDate(nextDay.getDate() + 1);
-                        
-                        if (nextDay.getDay() === 0 && settings.enableSundayRule) {
-                            const nextSundayStatus = getSundayStatus(employee, nextDay);
-                            
-                            if (nextSundayStatus === 'Folga') {
-                                daysSummary[dayIndex].off++;
-                                continue;
-                            }
-                        }
-                        
-                        if (employee.fixedDayOff && dayIndex === parseInt(employee.fixedDayOff)) {
-                            daysSummary[dayIndex].off++;
-                        } else {
-                            daysSummary[dayIndex].working++;
-                        }
-                    } else if (employee.fixedDayOff && dayIndex === parseInt(employee.fixedDayOff)) {
-                        daysSummary[dayIndex].off++;
-                    } else {
-                        daysSummary[dayIndex].working++;
-                    }
-                }
-            });
-            
-            // Adiciona linhas de resumo à tabela
-            for (let i = 1; i <= 7; i++) {
-                const dayIndex = i % 7;
+                const dayIndex = i;
                 if (!selectedPrintDays.includes(dayIndex)) continue;
                 
                 const day = new Date(currentWeekStart);
-                day.setDate(day.getDate() + (i - 1));
-                const dayName = daysOfWeek[dayIndex];
+                day.setDate(day.getDate() + i);
+                
+                const daySection = document.createElement('div');
+                daySection.className = 'print-day-section';
+                
+                // Cabeçalho compacto do dia
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'header-print';
+                dayHeader.innerHTML = `
+                    <h3 style="font-size: 11pt; margin: 2px 0;">${daysOfWeek[dayIndex]} - ${day.toLocaleDateString('pt-BR', { day: 'numeric', month: 'numeric' })}</h3>
+                `;
+                daySection.appendChild(dayHeader);
+                
+                // Tabela compacta de funcionários trabalhando
+                const workingTable = document.createElement('table');
+                workingTable.className = 'compact-table';
+                workingTable.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th width="5%">#</th>
+                            <th width="35%">Funcionário</th>
+                            <th width="20%">Cargo</th>
+                            <th width="15%">Horário</th>
+                            <th width="10%" class="caixa-column">1º</th>
+                            <th width="10%" class="caixa-column">2º</th>
+                            <th width="5%" class="obs-column">Obs</th>
+                        </tr>
+                    </thead>
+                    <tbody id="workingTableBody-${dayIndex}"></tbody>
+                `;
+                daySection.appendChild(workingTable);
+                
+                // Tabela compacta de funcionários em folga (só se houver)
+                const offTable = document.createElement('table');
+                offTable.className = 'compact-table';
+                offTable.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th width="5%">#</th>
+                            <th width="45%">Funcionário</th>
+                            <th width="30%">Cargo</th>
+                            <th width="20%">Motivo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="offTableBody-${dayIndex}"></tbody>
+                `;
+                daySection.appendChild(offTable);
+                
+                printDaysContainer.appendChild(daySection);
+                
+                // Preenche as tabelas para este dia
+                fillDayTables(dayIndex, day);
+            }
+        }
+        
+        // Preenche as tabelas de trabalho e folga para um dia específico
+        function fillDayTables(dayIndex, day) {
+            const workingTableBody = document.getElementById(`workingTableBody-${dayIndex}`);
+            const offTableBody = document.getElementById(`offTableBody-${dayIndex}`);
+            
+            workingTableBody.innerHTML = '';
+            offTableBody.innerHTML = '';
+            
+            let workingCount = 0;
+            let offCount = 0;
+            
+            employees.forEach((employee, index) => {
+                let dayStatus = '';
+                let reason = '';
+                
+                // Lógica para determinar status
+                if (dayIndex === 0) {
+                    if (settings.enableSundayRule) {
+                        const status = getSundayStatus(employee, day);
+                        dayStatus = status;
+                        reason = status === 'Trabalha' ? '' : 'Folga dominical';
+                    } else {
+                        if (employee.fixedDayOff && dayIndex.toString() === employee.fixedDayOff) {
+                            dayStatus = 'Folga';
+                            reason = 'Folga semanal';
+                        } else {
+                            dayStatus = 'Trabalha';
+                        }
+                    }
+                } else if (dayIndex === 6 && settings.sundayOffOnSaturday) {
+                    const nextDay = new Date(day);
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    
+                    if (nextDay.getDay() === 0 && settings.enableSundayRule) {
+                        const nextSundayStatus = getSundayStatus(employee, nextDay);
+                        if (nextSundayStatus === 'Folga') {
+                            dayStatus = 'Folga';
+                            reason = 'Folga dominical no sábado';
+                        }
+                    }
+                    
+                    if (!dayStatus) {
+                        if (employee.fixedDayOff && dayIndex.toString() === employee.fixedDayOff) {
+                            dayStatus = 'Folga';
+                            reason = 'Folga semanal';
+                        } else {
+                            dayStatus = 'Trabalha';
+                        }
+                    }
+                } else {
+                    if (employee.fixedDayOff && dayIndex.toString() === employee.fixedDayOff) {
+                        dayStatus = 'Folga';
+                        reason = 'Folga semanal';
+                    } else {
+                        dayStatus = 'Trabalha';
+                    }
+                }
                 
                 const row = document.createElement('tr');
                 
-                const dayCell = document.createElement('td');
-                dayCell.className = 'border border-gray-300 px-4 py-2';
-                dayCell.textContent = dayName;
-                row.appendChild(dayCell);
-                
-                const totalCell = document.createElement('td');
-                totalCell.className = 'border border-gray-300 px-4 py-2 text-center';
-                totalCell.textContent = daysSummary[dayIndex].total;
-                row.appendChild(totalCell);
-                
-                const offCell = document.createElement('td');
-                offCell.className = 'border border-gray-300 px-4 py-2 text-center';
-                offCell.textContent = daysSummary[dayIndex].off;
-                row.appendChild(offCell);
-                
-                const workingCell = document.createElement('td');
-                workingCell.className = 'border border-gray-300 px-4 py-2 text-center';
-                workingCell.textContent = daysSummary[dayIndex].working;
-                row.appendChild(workingCell);
-                
-                summaryTableBody.appendChild(row);
+                if (dayStatus === 'Trabalha') {
+                    workingCount++;
+                    row.innerHTML = `
+                        <td>${workingCount}</td>
+                        <td>${employee.name.split(' ')[0]}</td>
+                        <td>${employee.position.substring(0, 15)}</td>
+                        <td>${employee.startTime}-${employee.endTime}</td>
+                        <td class="caixa-column">_</td>
+                        <td class="caixa-column">_</td>
+                        <td class="obs-column"></td>
+                    `;
+                    workingTableBody.appendChild(row);
+                } else {
+                    offCount++;
+                    row.innerHTML = `
+                        <td>${offCount}</td>
+                        <td>${employee.name.split(' ')[0]}</td>
+                        <td>${employee.position.substring(0, 15)}</td>
+                        <td>${reason.substring(0, 10)}</td>
+                    `;
+                    offTableBody.appendChild(row);
+                }
+            });
+            
+            if (workingCount === 0) {
+                workingTableBody.innerHTML = '<tr><td colspan="7">Nenhum funcionário</td></tr>';
+            }
+            
+            if (offCount === 0) {
+                offTableBody.style.display = 'none';
             }
         }
         
@@ -1890,42 +1753,42 @@
         
         // Imprime a escala
         function printWeeklySchedule() {
-    // Atualiza a escala para impressão antes de imprimir
-    updatePrintableSchedule();
-    
-    // Mostra a escala para impressão
-    printableSchedule.classList.remove('hidden');
-    
-    // Aplica estilos específicos para impressão compacta
-    const style = document.createElement('style');
-    style.innerHTML = `
-        @page {
-            size: A4;
-            margin: 5mm;
+            // Atualiza a escala para impressão antes de imprimir
+            updatePrintableSchedule();
+            
+            // Mostra a escala para impressão
+            printableSchedule.classList.remove('hidden');
+            
+            // Aplica estilos específicos para impressão compacta
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @page {
+                    size: A4;
+                    margin: 5mm;
+                }
+                body {
+                    transform: scale(0.95);
+                    transform-origin: top left;
+                    width: 105%;
+                }
+                .print-day-section {
+                    margin-bottom: 2px;
+                }
+                table {
+                    page-break-inside: avoid;
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Imprime
+            window.print();
+            
+            // Limpa após impressão
+            setTimeout(() => {
+                printableSchedule.classList.add('hidden');
+                document.head.removeChild(style);
+            }, 500);
         }
-        body {
-            transform: scale(0.95);
-            transform-origin: top left;
-            width: 105%;
-        }
-        .print-day-section {
-            margin-bottom: 2px;
-        }
-        table {
-            page-break-inside: avoid;
-        }
-    `;
-    document.head.appendChild(style);
-    
-    // Imprime
-    window.print();
-    
-    // Limpa após impressão
-    setTimeout(() => {
-        printableSchedule.classList.add('hidden');
-        document.head.removeChild(style);
-    }, 500);
-}
         
         // Exporta dados para arquivo JSON
         function exportDataToJson() {
@@ -2499,174 +2362,6 @@
             });
         }
         
-    // Atualiza a escala para impressão - FUNÇÃO MODIFIpCADA
-    function updatePrintableSchedule() {
-    const printDaysContainer = document.getElementById('printDaysContainer');
-    printDaysContainer.innerHTML = '';
-    
-    // Formata a exibição da semana
-    const weekEnd = new Date(currentWeekStart);
-    weekEnd.setDate(weekEnd.getDate() + 6);
-    
-    const options = { day: 'numeric', month: 'short' }; // Formato mais curto
-    printWeekRange.textContent = `Semana: ${currentWeekStart.toLocaleDateString('pt-BR', options)} a ${weekEnd.toLocaleDateString('pt-BR', options)}`;
-    
-    const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']; // Nomes curtos
-    
-    // Cria uma seção para cada dia da semana
-    for (let i = 0; i < 7; i++) {
-        const dayIndex = i;
-        if (!selectedPrintDays.includes(dayIndex)) continue;
-        
-        const day = new Date(currentWeekStart);
-        day.setDate(day.getDate() + i);
-        
-        const daySection = document.createElement('div');
-        daySection.className = 'print-day-section';
-        
-        // Cabeçalho compacto do dia
-        const dayHeader = document.createElement('div');
-        dayHeader.className = 'header-print';
-        dayHeader.innerHTML = `
-            <h3 style="font-size: 11pt; margin: 2px 0;">${daysOfWeek[dayIndex]} - ${day.toLocaleDateString('pt-BR', { day: 'numeric', month: 'numeric' })}</h3>
-        `;
-        daySection.appendChild(dayHeader);
-        
-        // Tabela compacta de funcionários trabalhando
-        const workingTable = document.createElement('table');
-        workingTable.className = 'compact-table';
-        workingTable.innerHTML = `
-            <thead>
-                <tr>
-                    <th width="5%">#</th>
-                    <th width="35%">Funcionário</th>
-                    <th width="20%">Cargo</th>
-                    <th width="15%">Horário</th>
-                    <th width="10%" class="caixa-column">1º</th>
-                    <th width="10%" class="caixa-column">2º</th>
-                    <th width="5%" class="obs-column">Obs</th>
-                </tr>
-            </thead>
-            <tbody id="workingTableBody-${dayIndex}"></tbody>
-        `;
-        daySection.appendChild(workingTable);
-        
-        // Tabela compacta de funcionários em folga (só se houver)
-        const offTable = document.createElement('table');
-        offTable.className = 'compact-table';
-        offTable.innerHTML = `
-            <thead>
-                <tr>
-                    <th width="5%">#</th>
-                    <th width="45%">Funcionário</th>
-                    <th width="30%">Cargo</th>
-                    <th width="20%">Motivo</th>
-                </tr>
-            </thead>
-            <tbody id="offTableBody-${dayIndex}"></tbody>
-        `;
-        daySection.appendChild(offTable);
-        
-        printDaysContainer.appendChild(daySection);
-        
-        // Preenche as tabelas para este dia
-        fillDayTables(dayIndex, day);
-    }
-}
-
-// Preenche as tabelas de trabalho e folga para um dia específico
-function fillDayTables(dayIndex, day) {
-    const workingTableBody = document.getElementById(`workingTableBody-${dayIndex}`);
-    const offTableBody = document.getElementById(`offTableBody-${dayIndex}`);
-    
-    workingTableBody.innerHTML = '';
-    offTableBody.innerHTML = '';
-    
-    let workingCount = 0;
-    let offCount = 0;
-    
-    employees.forEach((employee, index) => {
-        let dayStatus = '';
-        let reason = '';
-        
-        // Lógica para determinar status (mantida igual à original)
-        if (dayIndex === 0) {
-            if (settings.enableSundayRule) {
-                const status = getSundayStatus(employee, day);
-                dayStatus = status;
-                reason = status === 'Trabalha' ? '' : 'Folga dominical';
-            } else {
-                if (employee.fixedDayOff && dayIndex.toString() === employee.fixedDayOff) {
-                    dayStatus = 'Folga';
-                    reason = 'Folga semanal';
-                } else {
-                    dayStatus = 'Trabalha';
-                }
-            }
-        } else if (dayIndex === 6 && settings.sundayOffOnSaturday) {
-            const nextDay = new Date(day);
-            nextDay.setDate(nextDay.getDate() + 1);
-            
-            if (nextDay.getDay() === 0 && settings.enableSundayRule) {
-                const nextSundayStatus = getSundayStatus(employee, nextDay);
-                if (nextSundayStatus === 'Folga') {
-                    dayStatus = 'Folga';
-                    reason = 'Folga dominical no sábado';
-                }
-            }
-            
-            if (!dayStatus) {
-                if (employee.fixedDayOff && dayIndex.toString() === employee.fixedDayOff) {
-                    dayStatus = 'Folga';
-                    reason = 'Folga semanal';
-                } else {
-                    dayStatus = 'Trabalha';
-                }
-            }
-        } else {
-            if (employee.fixedDayOff && dayIndex.toString() === employee.fixedDayOff) {
-                dayStatus = 'Folga';
-                reason = 'Folga semanal';
-            } else {
-                dayStatus = 'Trabalha';
-            }
-        }
-        
-        const row = document.createElement('tr');
-        
-        if (dayStatus === 'Trabalha') {
-            workingCount++;
-            row.innerHTML = `
-                <td>${workingCount}</td>
-                <td>${employee.name.split(' ')[0]}</td>
-                <td>${employee.position.substring(0, 15)}</td>
-                <td>${employee.startTime}-${employee.endTime}</td>
-                <td class="caixa-column">_</td>
-                <td class="caixa-column">_</td>
-                <td class="obs-column"></td>
-            `;
-            workingTableBody.appendChild(row);
-        } else {
-            offCount++;
-            row.innerHTML = `
-                <td>${offCount}</td>
-                <td>${employee.name.split(' ')[0]}</td>
-                <td>${employee.position.substring(0, 15)}</td>
-                <td>${reason.substring(0, 10)}</td>
-            `;
-            offTableBody.appendChild(row);
-        }
-    });
-    
-    if (workingCount === 0) {
-        workingTableBody.innerHTML = '<tr><td colspan="7">Nenhum funcionário</td></tr>';
-    }
-    
-    if (offCount === 0) {
-        offTableBody.style.display = 'none';
-    }
-}
-
         // Inicializa o aplicativo
         document.addEventListener('DOMContentLoaded', init);
     </script>
